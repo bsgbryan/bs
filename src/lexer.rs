@@ -1,12 +1,13 @@
 use std::str;
 
 use crate::{
-  error::{
-    RuntimeError,
-  },
+  error::RuntimeError,
   tokens::{
+    equality_tokens,
+    is_comment_token,
+    is_non_interpolated_string_boundary,
     single_char_tokens,
-    TokenKind, equality_tokens, is_comment_token,
+    TokenKind,
   },
 };
 
@@ -31,26 +32,61 @@ pub fn tokenize(input: &str) -> Result<Vec<Token>, RuntimeError> {
     match current {
       Some(current) => {
         if let Some(p) = chars.peek() {
-          if is_comment_token(format!("{current}{p}").as_str()) {
+          if is_non_interpolated_string_boundary(format!("{current}").as_str()) {
+            let start = column;
+            
+            let mut value = String::new();
+            
+            let mut terminated = false;
+
+            while let Some(next) = chars.peek() {
+              if !is_non_interpolated_string_boundary(format!("{next}").as_str()) {
+                column += 1;
+
+                value.push_str(format!("{next}").as_str());
+
+                chars.next();
+              }
+              else {
+                terminated = true;
+                break
+              }
+            }
+
+            if !terminated {
+              return Err(
+                RuntimeError {
+                  message: format!("Unterminated string '{value}' starting at {line}:{start}")
+                }
+              )
+            }
+
+            let kind = TokenKind::NonInterpolatedStringLiteral { value };
+
+            tokens.push(Token { kind, line, column: start, length: column - start });
             column += 1;
+            chars.next();
+          }
+          else if is_comment_token(format!("{current}{p}").as_str()) {
             // TODO Need to make sure leangth includes the actual comment
             tokens.push(Token { kind: TokenKind::Comment, line, column, length: 2 });
+            column += 1;
             chars.next();
           }
           else if let Some(k) = equality_tokens().get(format!("{current}{p}").as_str()) {
+            tokens.push(Token { kind: k.clone(), line, column, length: 2 });
             column += 1;
-            tokens.push(Token { kind: *k, line, column, length: 2 });
             chars.next();
           }
           else if let Some(k) = equality_tokens().get(format!("{current}").as_str()) {
-            tokens.push(Token { kind: *k, line, column, length: 1 });
+            tokens.push(Token { kind: k.clone(), line, column, length: 1 });
           }
           else if let Some(k) = single_char_tokens().get(format!("{current}").as_str()) {
-            tokens.push(Token { kind: *k, line, column, length: 1 });
+            tokens.push(Token { kind: k.clone(), line, column, length: 1 });
           }
         }
         else if let Some(k) = single_char_tokens().get(format!("{current}").as_str()) {
-          tokens.push(Token { kind: *k, line, column, length: 1 });
+          tokens.push(Token { kind: k.clone(), line, column, length: 1 });
         }
         else {
           return Err(

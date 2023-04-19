@@ -12,7 +12,6 @@ const MINUS: &str = "-";
 const PLUS: &str = "+";
 const SLASH: &str = "/";
 const STAR: &str = "*";
-const DOUBLE_QUOTE: &str = "\"";
 const SINGLE_QUOTE: &str = "'";
 const BACK_QUOTE: &str = "`";
 const BANG: &str = "!";
@@ -20,7 +19,7 @@ const EQUAL: &str = "=";
 const LESS: &str = "<";
 const GREATER: &str = ">";
 
-#[derive(Debug, PartialEq, Clone, Copy)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum TokenKind {
   EndOfLine,
   LeftParen,
@@ -34,7 +33,6 @@ pub enum TokenKind {
   Plus,
   Slash,
   Star,
-  DoubleQuote,
   SingleQuote,
   BackQuote,
   Bang,
@@ -46,6 +44,7 @@ pub enum TokenKind {
   LessEqual,
   GreaterEqual,
   Comment,
+  NonInterpolatedStringLiteral { value: String },
 }
 
 pub fn single_char_tokens() -> HashMap<&'static str, TokenKind> {
@@ -65,7 +64,6 @@ pub fn single_char_tokens() -> HashMap<&'static str, TokenKind> {
   simple_token_map.insert(PLUS, Plus);
   simple_token_map.insert(SLASH, Slash);
   simple_token_map.insert(STAR, Star);
-  simple_token_map.insert(DOUBLE_QUOTE, DoubleQuote);
   simple_token_map.insert(SINGLE_QUOTE, SingleQuote);
   simple_token_map.insert(BACK_QUOTE, BackQuote);
 
@@ -82,7 +80,6 @@ pub fn equality_tokens() -> HashMap<&'static str, TokenKind> {
 
   let mut equality_token_map: HashMap<&str, TokenKind> = HashMap::new();
 
-
   equality_token_map.insert(BANG, Bang);
   equality_token_map.insert(EQUAL, Equal);
   equality_token_map.insert(LESS, Less);
@@ -97,4 +94,8 @@ pub fn equality_tokens() -> HashMap<&'static str, TokenKind> {
 
 pub fn is_comment_token(t: &str) -> bool {
   t == "//"
+}
+
+pub fn is_non_interpolated_string_boundary(s: &str) -> bool {
+  s == "\""
 }
