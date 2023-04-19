@@ -5,6 +5,8 @@ use crate::{
   tokens::{
     equality_tokens,
     is_comment_token,
+    is_dot,
+    is_integer,
     is_non_interpolated_string_boundary,
     single_char_tokens,
     TokenKind,
@@ -34,9 +36,7 @@ pub fn tokenize(input: &str) -> Result<Vec<Token>, RuntimeError> {
         if let Some(p) = chars.peek() {
           if is_non_interpolated_string_boundary(format!("{current}").as_str()) {
             let start = column;
-            
             let mut value = String::new();
-            
             let mut terminated = false;
 
             while let Some(next) = chars.peek() {
@@ -66,6 +66,85 @@ pub fn tokenize(input: &str) -> Result<Vec<Token>, RuntimeError> {
             tokens.push(Token { kind, line, column: start, length: column - start });
             column += 1;
             chars.next();
+          }
+          else if is_integer(current.clone()) {
+            let start = column;
+            let mut value = String::new();
+            let mut dotted = false;
+            let mut valid = true;
+
+            value.push_str(format!("{current}").as_str());
+
+            while let Some(next) = chars.peek() {
+              if is_integer(next.clone()) {
+                column += 1;
+                value.push_str(format!("{next}").as_str());
+                chars.next();
+              }
+              else if is_dot(next.clone()) {
+                if !dotted {
+                  column += 1;
+                  value.push_str(format!("{next}").as_str());
+                  chars.next();
+                  dotted = true;
+                }
+                else {
+                  value.push_str(format!("{next}").as_str());
+
+                  return Err(
+                    RuntimeError {
+                      message: format!("'{value}' starting at {line}:{start} is not a valid floating point number")
+                    }
+                  )
+                }
+              }
+              else {
+                valid = false;
+                column += 1;
+
+                value.push_str(format!("{next}").as_str());
+
+                break
+              }
+            }
+
+            if valid {
+              if dotted {
+                if let Ok(v) = value.parse::<f32>() {
+                  let kind = TokenKind::FloatLiteral { value: v };
+
+                  tokens.push(Token { kind, line, column: start, length: column - start });
+                }
+                else {
+                  return Err(
+                    RuntimeError {
+                      message: format!("'{value}' starting at {line}:{start} is not a valid f64")
+                    }
+                  )
+                }
+              }
+              else {
+                if let Ok(v) = value.parse::<usize>() {
+                  let kind = TokenKind::IntegerLiteral { value: v };
+
+                  tokens.push(Token { kind, line, column: start, length: column - start });
+                }
+                else {
+                  return Err(
+                    RuntimeError {
+                      message: format!("'{value}' starting at {line}:{start} is not a valid integer")
+                    }
+                  )
+                }
+              }
+            }
+            else {
+              return Err(
+                RuntimeError {
+                  message: format!("'{value}' starting at {line}:{start} is not a valid numeric value")
+                }
+              )
+            }
           }
           else if is_comment_token(format!("{current}{p}").as_str()) {
             // TODO Need to make sure leangth includes the actual comment

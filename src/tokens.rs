@@ -45,6 +45,8 @@ pub enum TokenKind {
   GreaterEqual,
   Comment,
   NonInterpolatedStringLiteral { value: String },
+  IntegerLiteral { value: usize },
+  FloatLiteral { value: f32 },
 }
 
 pub fn single_char_tokens() -> HashMap<&'static str, TokenKind> {
@@ -98,4 +100,12 @@ pub fn is_comment_token(t: &str) -> bool {
 
 pub fn is_non_interpolated_string_boundary(s: &str) -> bool {
   s == "\""
+}
+
+pub fn is_integer(i: char) -> bool {
+  i >= '0' && i <= '9'
+}
+
+pub fn is_dot(d: char) -> bool {
+  d == '.'
 }
