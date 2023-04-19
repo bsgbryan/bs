@@ -41,11 +41,11 @@ fn main() -> Result<()> {
           }
         },
         Err(ReadlineError::Interrupted) => {
-          println!("MCP: End of line.");
+          println!("Master Control Program: End of line.");
           break
         },
         Err(ReadlineError::Eof) => {
-          println!("MCP: End of line.");
+          println!("Master Control Program: End of line.");
           break
         },
         Err(err) => {
