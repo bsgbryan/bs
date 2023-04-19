@@ -4,7 +4,7 @@ BryanScript (bs for short 🤭) is the little language I'm working on for fun (.
 
 It's just a little baby right now but, soon I'd like to to have syntax looking something like what's below compiling down to the WebAssembly binary format:
 
-```
+```bs
 use RuntimeError from core::error
 
 string GreetingError
