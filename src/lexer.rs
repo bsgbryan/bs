@@ -3,6 +3,7 @@ use std::str;
 use crate::{
   error::RuntimeError,
   tokens::{
+    Token,
     TokenKind,
     Keyword::*,
     equality_tokens,
@@ -17,14 +18,6 @@ use crate::{
     single_char_tokens,
   }
 };
-
-#[derive(Debug, PartialEq)]
-pub struct Token {
-  pub kind: TokenKind,
-  pub line: usize,
-  pub column: usize,
-  pub length: usize,
-}
 
 pub fn tokenize(input: &str) -> Result<Vec<Token>, RuntimeError> {
   let mut tokens = Vec::new();
