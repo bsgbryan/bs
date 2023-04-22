@@ -45,17 +45,14 @@ pub fn tokenize(input: &str) -> Result<Vec<Token>, RuntimeError> {
 
               tokens.push(Token { kind, line, column, length: 3 });
               column += 3;
-              chars.next();
-              chars.next();
+              let _ = chars.advance_by(2);
             }
             else if is_when_keyword(current, chars.clone()) {
               let kind = TokenKind::Keyword { value: When };
 
               tokens.push(Token { kind, line, column, length: 4 });
               column += 4;
-              chars.next();
-              chars.next();
-              chars.next();
+              let _ = chars.advance_by(3);
             }
             else if is_otherwise_keyword(current, chars.clone()) {
               let kind = TokenKind::Keyword { value: Otherwise };
