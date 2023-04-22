@@ -26,6 +26,7 @@ const GREATER: &str = ">";
 #[derive(Debug, PartialEq, Clone)]
 pub enum Keyword {
   Fun,
+  Otherwise,
   When,
 }
 
@@ -131,4 +132,16 @@ pub fn is_fun_keyword(k: char, mut iter: Peekable<Chars<'_>>) -> bool {
 
 pub fn is_when_keyword(k: char, mut iter: Peekable<Chars<'_>>) -> bool {
   k == 'w' && iter.next() == Some('h') && iter.next() == Some('e') && iter.next() == Some('n')
+}
+
+pub fn is_otherwise_keyword(k: char, mut iter: Peekable<Chars<'_>>) -> bool {
+  k           ==      'o'  &&
+  iter.next() == Some('t') &&
+  iter.next() == Some('h') &&
+  iter.next() == Some('e') &&
+  iter.next() == Some('r') &&
+  iter.next() == Some('w') &&
+  iter.next() == Some('i') &&
+  iter.next() == Some('s') &&
+  iter.next() == Some('e')
 }

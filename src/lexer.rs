@@ -14,6 +14,7 @@ use crate::{
     is_lowercase_alphabetic_character,
     is_fun_keyword,
     is_when_keyword,
+    is_otherwise_keyword,
   }
 };
 
@@ -55,6 +56,13 @@ pub fn tokenize(input: &str) -> Result<Vec<Token>, RuntimeError> {
               chars.next();
               chars.next();
               chars.next();
+            }
+            else if is_otherwise_keyword(current, chars.clone()) {
+              let kind = TokenKind::Keyword { value: Otherwise };
+
+              tokens.push(Token { kind, line, column, length: 9 });
+              column += 9;
+              let _ = chars.advance_by(8);
             }
           }
           else if is_non_interpolated_string_boundary(format!("{current}").as_str()) {

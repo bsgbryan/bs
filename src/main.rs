@@ -1,3 +1,4 @@
+#![feature(iter_advance_by)]
 mod tokens;
 mod error;
 mod lexer;
