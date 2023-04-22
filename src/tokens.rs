@@ -1,4 +1,8 @@
-use std::collections::HashMap;
+use std::{
+  collections::HashMap,
+  iter::Peekable,
+  str::Chars,
+};
 
 const NEW_LINE: &str = "\n";
 const LEFT_PAREN: &str = "(";
@@ -18,6 +22,11 @@ const BANG: &str = "!";
 const EQUAL: &str = "=";
 const LESS: &str = "<";
 const GREATER: &str = ">";
+
+#[derive(Debug, PartialEq, Clone)]
+pub enum Keyword {
+  Fun,
+}
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum TokenKind {
@@ -47,6 +56,7 @@ pub enum TokenKind {
   NonInterpolatedStringLiteral { value: String },
   IntegerLiteral { value: usize },
   FloatLiteral { value: f32 },
+  Keyword { value: Keyword }
 }
 
 pub fn single_char_tokens() -> HashMap<&'static str, TokenKind> {
@@ -108,4 +118,12 @@ pub fn is_integer(i: char) -> bool {
 
 pub fn is_dot(d: char) -> bool {
   d == '.'
+}
+
+pub fn is_lowercase_alphabetic_character(c: char) -> bool {
+  c >= 'a' && c <= 'z'
+}
+
+pub fn is_fun_keyword(k: char, mut iter: Peekable<Chars<'_>>) -> bool {
+  k == 'f' && iter.next() == Some('u') && iter.next() == Some('n')
 }

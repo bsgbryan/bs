@@ -10,7 +10,10 @@ use crate::{
     is_non_interpolated_string_boundary,
     single_char_tokens,
     TokenKind,
-  },
+    is_lowercase_alphabetic_character,
+    is_fun_keyword,
+    Keyword::*,
+  }
 };
 
 #[derive(Debug, PartialEq)]
@@ -34,7 +37,17 @@ pub fn tokenize(input: &str) -> Result<Vec<Token>, RuntimeError> {
     match current {
       Some(current) => {
         if let Some(p) = chars.peek() {
-          if is_non_interpolated_string_boundary(format!("{current}").as_str()) {
+          if is_lowercase_alphabetic_character(current) {
+            if is_fun_keyword(current, chars.clone()) {
+              let kind = TokenKind::Keyword { value: Fun };
+
+              tokens.push(Token { kind, line, column, length: 3 });
+              column += 3;
+              chars.next();
+              chars.next();
+            }
+          }
+          else if is_non_interpolated_string_boundary(format!("{current}").as_str()) {
             let start = column;
             let mut value = String::new();
             let mut terminated = false;
