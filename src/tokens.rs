@@ -26,6 +26,7 @@ const GREATER: &str = ">";
 #[derive(Debug, PartialEq, Clone)]
 pub enum Keyword {
   Fun,
+  When,
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -126,4 +127,8 @@ pub fn is_lowercase_alphabetic_character(c: char) -> bool {
 
 pub fn is_fun_keyword(k: char, mut iter: Peekable<Chars<'_>>) -> bool {
   k == 'f' && iter.next() == Some('u') && iter.next() == Some('n')
+}
+
+pub fn is_when_keyword(k: char, mut iter: Peekable<Chars<'_>>) -> bool {
+  k == 'w' && iter.next() == Some('h') && iter.next() == Some('e') && iter.next() == Some('n')
 }

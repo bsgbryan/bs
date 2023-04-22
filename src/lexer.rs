@@ -3,16 +3,17 @@ use std::str;
 use crate::{
   error::RuntimeError,
   tokens::{
+    TokenKind,
+    Keyword::*,
     equality_tokens,
     is_comment_token,
     is_dot,
     is_integer,
     is_non_interpolated_string_boundary,
     single_char_tokens,
-    TokenKind,
     is_lowercase_alphabetic_character,
     is_fun_keyword,
-    Keyword::*,
+    is_when_keyword,
   }
 };
 
@@ -43,6 +44,15 @@ pub fn tokenize(input: &str) -> Result<Vec<Token>, RuntimeError> {
 
               tokens.push(Token { kind, line, column, length: 3 });
               column += 3;
+              chars.next();
+              chars.next();
+            }
+            else if is_when_keyword(current, chars.clone()) {
+              let kind = TokenKind::Keyword { value: When };
+
+              tokens.push(Token { kind, line, column, length: 4 });
+              column += 4;
+              chars.next();
               chars.next();
               chars.next();
             }
