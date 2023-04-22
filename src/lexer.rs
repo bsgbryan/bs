@@ -8,13 +8,13 @@ use crate::{
     equality_tokens,
     is_comment_token,
     is_dot,
-    is_integer,
-    is_non_interpolated_string_boundary,
-    single_char_tokens,
-    is_lowercase_alphabetic_character,
     is_fun_keyword,
-    is_when_keyword,
+    is_integer,
+    is_lowercase_alphabetic_character,
+    is_non_interpolated_string_boundary,
     is_otherwise_keyword,
+    is_when_keyword,
+    single_char_tokens,
   }
 };
 
