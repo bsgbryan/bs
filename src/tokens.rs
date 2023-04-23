@@ -77,7 +77,8 @@ pub enum TokenKind {
   NonInterpolatedStringLiteral { value: String },
   IntegerLiteral { value: usize },
   FloatLiteral { value: f32 },
-  Keyword { value: Keyword }
+  Keyword { value: Keyword },
+  Type { name: String },
 }
 
 pub fn single_char_tokens() -> HashMap<&'static str, TokenKind> {
@@ -143,6 +144,10 @@ pub fn is_dot(d: char) -> bool {
 
 pub fn is_lowercase_alphabetic_character(c: char) -> bool {
   c >= 'a' && c <= 'z'
+}
+
+pub fn is_uppercase_alphabetic_character(k: char) -> bool {
+  k >= 'A' && k <= 'Z'
 }
 
 pub fn is_fun_keyword(k: char, mut iter: Peekable<Chars<'_>>) -> bool {

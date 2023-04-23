@@ -24,6 +24,7 @@ use crate::{
     is_otherwise_keyword,
     is_return_keyword,
     is_struct_keyword,
+    is_uppercase_alphabetic_character,
     is_use_keyword,
     is_when_keyword,
     single_char_tokens,
@@ -143,11 +144,44 @@ pub fn tokenize(input: &str) -> Result<Vec<Token>, RuntimeError> {
               let _ = chars.advance_by(7);
             }
           }
+          else if is_uppercase_alphabetic_character(current) {
+            let start = column;
+            let mut value = vec![];
+
+            value.push(current);
+
+            while let Some(&next) = chars.peek() {
+              if is_lowercase_alphabetic_character(next) || is_uppercase_alphabetic_character(next) {
+                column += 1;
+
+                value.push(next);
+
+                chars.next();
+              }
+              else if next == ' ' {
+                column += 1;
+                chars.next();
+                break;
+              }
+              else {
+                return Err(
+                  RuntimeError {
+                    message: format!("Invalid character '{next}' in type name {line}:{column}")
+                  }
+                )
+              }
+            }
+
+            let kind = TokenKind::Type { name: value.iter().collect::<String>() };
+
+            tokens.push(Token { kind, line, column: start, length: value.len() });
+          }
           else if is_non_interpolated_string_boundary(format!("{current}").as_str()) {
             let start = column;
             let mut value = String::new();
             let mut terminated = false;
 
+            // TODO Follow the pattern used in the is_type_name block starting on line 146 above
             while let Some(next) = chars.peek() {
               if !is_non_interpolated_string_boundary(format!("{next}").as_str()) {
                 column += 1;
@@ -173,6 +207,7 @@ pub fn tokenize(input: &str) -> Result<Vec<Token>, RuntimeError> {
             let kind = TokenKind::NonInterpolatedStringLiteral { value };
 
             tokens.push(Token { kind, line, column: start, length: column - start });
+            // TODO Double check if this is needed - if seems like it's not
             column += 1;
             chars.next();
           }
@@ -184,6 +219,7 @@ pub fn tokenize(input: &str) -> Result<Vec<Token>, RuntimeError> {
 
             value.push_str(format!("{current}").as_str());
 
+            // TODO Follow the pattern used in the is_type_name block starting on line 146 above
             while let Some(next) = chars.peek() {
               if is_integer(next.clone()) {
                 column += 1;
@@ -206,6 +242,9 @@ pub fn tokenize(input: &str) -> Result<Vec<Token>, RuntimeError> {
                     }
                   )
                 }
+              }
+              else if next.clone() == ' ' {
+                break
               }
               else {
                 valid = false;
