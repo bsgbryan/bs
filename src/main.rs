@@ -33,7 +33,7 @@ fn main() -> Result<()> {
           match tokenize(&line) {
             Ok(tokens) => {
               for t in tokens.iter() {
-                println!("Token {:?}", t.kind)
+                println!("Token {:?}", t)
               }
             }
             Err(e) => {
