@@ -7,12 +7,12 @@ It's just a little baby right now but, soon I'd like to have syntax looking some
 ```bs
 use RuntimeError from core::error
 
-string GreetingError
-  const message: string
+struct GreetingError
+  const message: String
 
 expose struct Person
-  const name: string
-    mut age:  int
+  const name: String
+    mut age:  i32
     
 decorate Person(Debug, PartialEq, Hash)
   fun greet(stranger: Person) -> Result<Ok, GreetingError>
