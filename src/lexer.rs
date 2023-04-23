@@ -14,6 +14,7 @@ use crate::{
     is_fun_keyword,
     is_integer,
     is_lowercase_alphabetic_character,
+    is_mut_keyword,
     is_non_interpolated_string_boundary,
     is_otherwise_keyword,
     is_struct_keyword,
@@ -85,6 +86,13 @@ pub fn tokenize(input: &str) -> Result<Vec<Token>, RuntimeError> {
               tokens.push(Token { kind, line, column, length: 5 });
               column += 4;
               let _ = chars.advance_by(4);
+            }
+            else if is_mut_keyword(current, chars.clone()) {
+              let kind = TokenKind::Keyword { value: Mut };
+
+              tokens.push(Token { kind, line, column, length: 3 });
+              column += 2;
+              let _ = chars.advance_by(2);
             }
           }
           else if is_non_interpolated_string_boundary(format!("{current}").as_str()) {

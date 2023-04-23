@@ -36,6 +36,7 @@ pub enum Keyword {
   Const,
   Expose,
   Fun,
+  Mut,
   Otherwise,
   Struct,
   Use,
@@ -192,5 +193,11 @@ pub fn is_const_keyword(k: char, mut iter: Peekable<Chars<'_>>) -> bool {
   iter.next() == Some('o') &&
   iter.next() == Some('n') &&
   iter.next() == Some('s') &&
+  iter.next() == Some('t')
+}
+
+pub fn is_mut_keyword(k: char, mut iter: Peekable<Chars<'_>>) -> bool {
+  k           ==      'm'  &&
+  iter.next() == Some('u') &&
   iter.next() == Some('t')
 }
