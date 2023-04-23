@@ -34,6 +34,7 @@ pub struct Token {
 #[derive(Debug, PartialEq, Clone)]
 pub enum Keyword {
   Const,
+  Decorate,
   Expose,
   F32,
   F64,
@@ -238,4 +239,15 @@ pub fn is_return_keyword(k: char, mut iter: Peekable<Chars<'_>>) -> bool {
   iter.next() == Some('u') &&
   iter.next() == Some('r') &&
   iter.next() == Some('n')
+}
+
+pub fn is_decorate_keyword(k: char, mut iter: Peekable<Chars<'_>>) -> bool {
+  k           ==      'd'  &&
+  iter.next() == Some('e') &&
+  iter.next() == Some('c') &&
+  iter.next() == Some('o') &&
+  iter.next() == Some('r') &&
+  iter.next() == Some('a') &&
+  iter.next() == Some('t') &&
+  iter.next() == Some('e')
 }

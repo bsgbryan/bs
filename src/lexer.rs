@@ -9,6 +9,7 @@ use crate::{
     equality_tokens,
     is_comment_token,
     is_const_keyword,
+    is_decorate_keyword,
     is_dot,
     is_expose_keyword,
     is_f32_keyword,
@@ -133,6 +134,13 @@ pub fn tokenize(input: &str) -> Result<Vec<Token>, RuntimeError> {
               tokens.push(Token { kind, line, column, length: 6 });
               column += 5;
               let _ = chars.advance_by(5);
+            }
+            else if is_decorate_keyword(current, chars.clone()) {
+              let kind = TokenKind::Keyword { value: Decorate };
+
+              tokens.push(Token { kind, line, column, length: 8 });
+              column += 7;
+              let _ = chars.advance_by(7);
             }
           }
           else if is_non_interpolated_string_boundary(format!("{current}").as_str()) {
