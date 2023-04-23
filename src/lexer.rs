@@ -16,6 +16,7 @@ use crate::{
     is_non_interpolated_string_boundary,
     is_otherwise_keyword,
     is_struct_keyword,
+    is_use_keyword,
     is_when_keyword,
     single_char_tokens,
   }
@@ -69,6 +70,13 @@ pub fn tokenize(input: &str) -> Result<Vec<Token>, RuntimeError> {
               tokens.push(Token { kind, line, column, length: 6 });
               column += 5;
               let _ = chars.advance_by(5);
+            }
+            else if is_use_keyword(current, chars.clone()) {
+              let kind = TokenKind::Keyword { value: Use };
+
+              tokens.push(Token { kind, line, column, length: 3 });
+              column += 2;
+              let _ = chars.advance_by(2);
             }
           }
           else if is_non_interpolated_string_boundary(format!("{current}").as_str()) {

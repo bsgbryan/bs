@@ -37,6 +37,7 @@ pub enum Keyword {
   Fun,
   Otherwise,
   Struct,
+  Use,
   When,
 }
 
@@ -175,6 +176,12 @@ pub fn is_expose_keyword(k: char, mut iter: Peekable<Chars<'_>>) -> bool {
   iter.next() == Some('x') &&
   iter.next() == Some('p') &&
   iter.next() == Some('o') &&
+  iter.next() == Some('s') &&
+  iter.next() == Some('e')
+}
+
+pub fn is_use_keyword(k: char, mut iter: Peekable<Chars<'_>>) -> bool {
+  k           ==      'u'  &&
   iter.next() == Some('s') &&
   iter.next() == Some('e')
 }
