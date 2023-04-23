@@ -12,6 +12,7 @@ use crate::{
     is_dot,
     is_expose_keyword,
     is_fun_keyword,
+    is_i32_keyword,
     is_integer,
     is_lowercase_alphabetic_character,
     is_mut_keyword,
@@ -89,6 +90,13 @@ pub fn tokenize(input: &str) -> Result<Vec<Token>, RuntimeError> {
             }
             else if is_mut_keyword(current, chars.clone()) {
               let kind = TokenKind::Keyword { value: Mut };
+
+              tokens.push(Token { kind, line, column, length: 3 });
+              column += 2;
+              let _ = chars.advance_by(2);
+            }
+            else if is_i32_keyword(current, chars.clone()) {
+              let kind = TokenKind::Keyword { value: I32 };
 
               tokens.push(Token { kind, line, column, length: 3 });
               column += 2;

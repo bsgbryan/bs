@@ -36,6 +36,7 @@ pub enum Keyword {
   Const,
   Expose,
   Fun,
+  I32,
   Mut,
   Otherwise,
   Struct,
@@ -200,4 +201,10 @@ pub fn is_mut_keyword(k: char, mut iter: Peekable<Chars<'_>>) -> bool {
   k           ==      'm'  &&
   iter.next() == Some('u') &&
   iter.next() == Some('t')
+}
+
+pub fn is_i32_keyword(k: char, mut iter: Peekable<Chars<'_>>) -> bool {
+  k           ==      'i'  &&
+  iter.next() == Some('3') &&
+  iter.next() == Some('2')
 }
