@@ -244,7 +244,6 @@ pub fn tokenize(input: &str) -> Result<Vec<Token>, RuntimeError> {
                 }
               }
               else if next.clone() == ' ' {
-                column += 1;
                 chars.next();
                 break
               }
@@ -259,6 +258,8 @@ pub fn tokenize(input: &str) -> Result<Vec<Token>, RuntimeError> {
             }
 
             if valid {
+              column += 1;
+
               if dotted {
                 if let Ok(v) = value.parse::<f32>() {
                   let kind = TokenKind::FloatLiteral { value: v };
