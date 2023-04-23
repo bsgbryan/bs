@@ -35,6 +35,7 @@ pub struct Token {
 pub enum Keyword {
   Const,
   Expose,
+  F32,
   Fun,
   I32,
   I64,
@@ -214,4 +215,10 @@ pub fn is_i64_keyword(k: char, mut iter: Peekable<Chars<'_>>) -> bool {
   k           ==      'i'  &&
   iter.next() == Some('6') &&
   iter.next() == Some('4')
+}
+
+pub fn is_f32_keyword(k: char, mut iter: Peekable<Chars<'_>>) -> bool {
+  k           ==      'f'  &&
+  iter.next() == Some('3') &&
+  iter.next() == Some('2')
 }
