@@ -143,6 +143,38 @@ pub fn tokenize(input: &str) -> Result<Vec<Token>, RuntimeError> {
               column += 7;
               let _ = chars.advance_by(7);
             }
+            else {
+              let start = column;
+              let mut value = vec![];
+
+              value.push(current);
+
+              while let Some(&next) = chars.peek() {
+                if is_lowercase_alphabetic_character(next) || is_uppercase_alphabetic_character(next) {
+                  column += 1;
+
+                  value.push(next);
+
+                  chars.next();
+                }
+                else if next == ' ' {
+                  column += 1;
+                  chars.next();
+                  break;
+                }
+                else {
+                  return Err(
+                    RuntimeError {
+                      message: format!("Invalid character '{next}' in label {line}:{column}")
+                    }
+                  )
+                }
+              }
+
+              let kind = TokenKind::Label { value: value.iter().collect::<String>() };
+
+              tokens.push(Token { kind, line, column: start, length: value.len() });
+            }
           }
           else if is_uppercase_alphabetic_character(current) {
             let start = column;

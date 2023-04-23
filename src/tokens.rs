@@ -79,6 +79,7 @@ pub enum TokenKind {
   FloatLiteral { value: f32 },
   Keyword { value: Keyword },
   Type { name: String },
+  Label { value: String },
 }
 
 pub fn single_char_tokens() -> HashMap<&'static str, TokenKind> {
