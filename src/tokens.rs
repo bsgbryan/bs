@@ -42,6 +42,7 @@ pub enum Keyword {
   I64,
   Mut,
   Otherwise,
+  Return,
   Struct,
   Use,
   When,
@@ -228,4 +229,13 @@ pub fn is_f64_keyword(k: char, mut iter: Peekable<Chars<'_>>) -> bool {
   k           ==      'f'  &&
   iter.next() == Some('6') &&
   iter.next() == Some('4')
+}
+
+pub fn is_return_keyword(k: char, mut iter: Peekable<Chars<'_>>) -> bool {
+  k           ==      'r'  &&
+  iter.next() == Some('e') &&
+  iter.next() == Some('t') &&
+  iter.next() == Some('u') &&
+  iter.next() == Some('r') &&
+  iter.next() == Some('n')
 }
