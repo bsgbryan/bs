@@ -244,6 +244,8 @@ pub fn tokenize(input: &str) -> Result<Vec<Token>, RuntimeError> {
                 }
               }
               else if next.clone() == ' ' {
+                column += 1;
+                chars.next();
                 break
               }
               else {
