@@ -35,6 +35,7 @@ pub struct Token {
 pub enum Keyword {
   Fun,
   Otherwise,
+  Struct,
   When,
 }
 
@@ -157,4 +158,13 @@ pub fn is_otherwise_keyword(k: char, mut iter: Peekable<Chars<'_>>) -> bool {
   iter.next() == Some('i') &&
   iter.next() == Some('s') &&
   iter.next() == Some('e')
+}
+
+pub fn is_struct_keyword(k: char, mut iter: Peekable<Chars<'_>>) -> bool {
+  k           ==      's'  &&
+  iter.next() == Some('t') &&
+  iter.next() == Some('r') &&
+  iter.next() == Some('u') &&
+  iter.next() == Some('c') &&
+  iter.next() == Some('t')
 }
