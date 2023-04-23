@@ -9,6 +9,7 @@ use crate::{
     equality_tokens,
     is_comment_token,
     is_dot,
+    is_expose_keyword,
     is_fun_keyword,
     is_integer,
     is_lowercase_alphabetic_character,
@@ -57,6 +58,13 @@ pub fn tokenize(input: &str) -> Result<Vec<Token>, RuntimeError> {
             }
             else if is_struct_keyword(current, chars.clone()) {
               let kind = TokenKind::Keyword { value: Struct };
+
+              tokens.push(Token { kind, line, column, length: 6 });
+              column += 5;
+              let _ = chars.advance_by(5);
+            }
+            else if is_expose_keyword(current, chars.clone()) {
+              let kind = TokenKind::Keyword { value: Expose };
 
               tokens.push(Token { kind, line, column, length: 6 });
               column += 5;

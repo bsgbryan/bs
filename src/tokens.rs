@@ -33,6 +33,7 @@ pub struct Token {
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Keyword {
+  Expose,
   Fun,
   Otherwise,
   Struct,
@@ -167,4 +168,13 @@ pub fn is_struct_keyword(k: char, mut iter: Peekable<Chars<'_>>) -> bool {
   iter.next() == Some('u') &&
   iter.next() == Some('c') &&
   iter.next() == Some('t')
+}
+
+pub fn is_expose_keyword(k: char, mut iter: Peekable<Chars<'_>>) -> bool {
+  k           ==      'e'  &&
+  iter.next() == Some('x') &&
+  iter.next() == Some('p') &&
+  iter.next() == Some('o') &&
+  iter.next() == Some('s') &&
+  iter.next() == Some('e')
 }
