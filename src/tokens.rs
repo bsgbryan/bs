@@ -33,6 +33,7 @@ pub struct Token {
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Keyword {
+  Const,
   Expose,
   Fun,
   Otherwise,
@@ -184,4 +185,12 @@ pub fn is_use_keyword(k: char, mut iter: Peekable<Chars<'_>>) -> bool {
   k           ==      'u'  &&
   iter.next() == Some('s') &&
   iter.next() == Some('e')
+}
+
+pub fn is_const_keyword(k: char, mut iter: Peekable<Chars<'_>>) -> bool {
+  k           ==      'c'  &&
+  iter.next() == Some('o') &&
+  iter.next() == Some('n') &&
+  iter.next() == Some('s') &&
+  iter.next() == Some('t')
 }

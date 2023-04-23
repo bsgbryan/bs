@@ -8,6 +8,7 @@ use crate::{
     Keyword::*,
     equality_tokens,
     is_comment_token,
+    is_const_keyword,
     is_dot,
     is_expose_keyword,
     is_fun_keyword,
@@ -77,6 +78,13 @@ pub fn tokenize(input: &str) -> Result<Vec<Token>, RuntimeError> {
               tokens.push(Token { kind, line, column, length: 3 });
               column += 2;
               let _ = chars.advance_by(2);
+            }
+            else if is_const_keyword(current, chars.clone()) {
+              let kind = TokenKind::Keyword { value: Const };
+
+              tokens.push(Token { kind, line, column, length: 5 });
+              column += 4;
+              let _ = chars.advance_by(4);
             }
           }
           else if is_non_interpolated_string_boundary(format!("{current}").as_str()) {
