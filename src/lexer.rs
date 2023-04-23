@@ -38,21 +38,21 @@ pub fn tokenize(input: &str) -> Result<Vec<Token>, RuntimeError> {
               let kind = TokenKind::Keyword { value: Fun };
 
               tokens.push(Token { kind, line, column, length: 3 });
-              column += 3;
+              column += 2;
               let _ = chars.advance_by(2);
             }
             else if is_when_keyword(current, chars.clone()) {
               let kind = TokenKind::Keyword { value: When };
 
               tokens.push(Token { kind, line, column, length: 4 });
-              column += 4;
+              column += 3;
               let _ = chars.advance_by(3);
             }
             else if is_otherwise_keyword(current, chars.clone()) {
               let kind = TokenKind::Keyword { value: Otherwise };
 
               tokens.push(Token { kind, line, column, length: 9 });
-              column += 9;
+              column += 8;
               let _ = chars.advance_by(8);
             }
             else if is_struct_keyword(current, chars.clone()) {
