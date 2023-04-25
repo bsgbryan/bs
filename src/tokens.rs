@@ -51,6 +51,7 @@ pub enum Keyword {
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum TokenKind {
+  Undefined,
   EndOfLine,
   LeftParen,
   RightParen,

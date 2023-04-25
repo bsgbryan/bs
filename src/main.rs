@@ -5,15 +5,18 @@ mod lexer;
 
 use std::env;
 
-use rustyline::error::ReadlineError;
+use error::RuntimeError;
+
 use rustyline::{
+  error::ReadlineError,
   DefaultEditor,
-  Result,
+  Result as RustyResult,
 };
 
 use lexer::tokenize;
+use tokens::Token;
 
-fn main() -> Result<()> {
+fn main() -> RustyResult<()> {
   let args: Vec<String> = env::args().collect();
 
   if args.len() == 2 {
@@ -30,16 +33,14 @@ fn main() -> Result<()> {
         Ok(line) => {
           rl.add_history_entry(line.as_str())?;
 
-          match tokenize(&line) {
-            Ok(tokens) => {
-              for t in tokens.iter() {
-                println!("Token {:?}", t)
-              }
+          let callback = |result: Result<&Token, RuntimeError>| {
+            match result {
+              Ok(r) => println!("Got Token: {:?}", r),
+              Err(e) => println!("{}", e.message),
             }
-            Err(e) => {
-              println!("{}", e.message)
-            }
-          }
+          };
+
+          tokenize(&line, &callback)
         },
         Err(ReadlineError::Interrupted) => {
           println!("Master Control Program: End of line.");
