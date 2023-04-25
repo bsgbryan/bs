@@ -31,7 +31,7 @@ use crate::{
   }
 };
 
-pub fn tokenize(input: &str, callback: &dyn Fn(Result<&Token, RuntimeError>)) {
+pub fn tokenize(input: &str, callback: &mut dyn FnMut(Result<&Token, RuntimeError>)) {
   let mut line = 0;
   let mut column = 0;
 
@@ -233,6 +233,7 @@ pub fn tokenize(input: &str, callback: &dyn Fn(Result<&Token, RuntimeError>)) {
             // TODO Double check if this is needed - if seems like it's not
             column += 1;
             chars.next();
+            callback(Ok(&token));
           }
           else if is_integer(current.clone()) {
             let start = column;
@@ -263,7 +264,7 @@ pub fn tokenize(input: &str, callback: &dyn Fn(Result<&Token, RuntimeError>)) {
                   return callback(Err(RuntimeError {message}));
                 }
               }
-              else if next.clone() == ' ' {
+              else if next.clone() == ' ' || next.clone() == ')' {
                 chars.next();
                 break
               }
@@ -302,6 +303,8 @@ pub fn tokenize(input: &str, callback: &dyn Fn(Result<&Token, RuntimeError>)) {
                   return callback(Err(RuntimeError {message}));
                 }
               }
+
+              callback(Ok(&token));
             }
             else {
               let message = format!("'{value}' starting at {line}:{start} is not a valid numeric value");
@@ -342,9 +345,6 @@ pub fn tokenize(input: &str, callback: &dyn Fn(Result<&Token, RuntimeError>)) {
     }
 
     column += 1;
-
     current = chars.next();
-
-    callback(Ok(&token));
   }
 }

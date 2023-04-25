@@ -14,7 +14,13 @@ use rustyline::{
 };
 
 use lexer::tokenize;
-use tokens::Token;
+use tokens::{
+  Token,
+  TokenKind::{
+    IntegerLiteral,
+    NonInterpolatedStringLiteral,
+  }
+};
 
 fn main() -> RustyResult<()> {
   let args: Vec<String> = env::args().collect();
@@ -33,14 +39,24 @@ fn main() -> RustyResult<()> {
         Ok(line) => {
           rl.add_history_entry(line.as_str())?;
 
-          let callback = |result: Result<&Token, RuntimeError>| {
+          let callback = &mut |result: Result<&Token, RuntimeError>| {
             match result {
-              Ok(r) => println!("Got Token: {:?}", r),
-              Err(e) => println!("{}", e.message),
+              Ok(r) => {
+                match &r.kind {
+                  NonInterpolatedStringLiteral { value: s } => {
+                    println!("Non-interpolated string \"{}\"", s);
+                  }
+                  IntegerLiteral { value: i } => {
+                    println!("Integer literal {}", i);
+                  }
+                  _ => println!("Something else")
+                }
+              }
+              Err(e) => println!("ERROR {}", e.message),
             }
           };
 
-          tokenize(&line, &callback)
+          tokenize(&line, callback);
         },
         Err(ReadlineError::Interrupted) => {
           println!("Master Control Program: End of line.");
