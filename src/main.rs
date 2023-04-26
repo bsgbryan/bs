@@ -1,7 +1,7 @@
 #![feature(iter_advance_by)]
 mod compiler;
 mod error;
-mod lexer;
+mod tokenizer;
 mod tokens;
 
 use std::env;

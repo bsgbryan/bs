@@ -1,6 +1,6 @@
 use crate::error::RuntimeError;
 
-use crate::lexer::Tokenizer;
+use crate::tokenizer::Tokenizer;
 use crate::tokens::{
   Token,
   TokenKind::{
