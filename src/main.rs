@@ -1,11 +1,10 @@
 #![feature(iter_advance_by)]
-mod tokens;
+mod compiler;
 mod error;
 mod lexer;
+mod tokens;
 
 use std::env;
-
-use error::RuntimeError;
 
 use rustyline::{
   error::ReadlineError,
@@ -13,14 +12,7 @@ use rustyline::{
   Result as RustyResult,
 };
 
-use lexer::tokenize;
-use tokens::{
-  Token,
-  TokenKind::{
-    IntegerLiteral,
-    NonInterpolatedStringLiteral,
-  }
-};
+use compiler::Compiler;
 
 fn main() -> RustyResult<()> {
   let args: Vec<String> = env::args().collect();
@@ -36,27 +28,11 @@ fn main() -> RustyResult<()> {
     loop {
       let readline = rl.readline(">> ");
       match readline {
-        Ok(line) => {
-          rl.add_history_entry(line.as_str())?;
+        Ok(input) => {
+          rl.add_history_entry(input.as_str())?;
 
-          let callback = &mut |result: Result<&Token, RuntimeError>| {
-            match result {
-              Ok(r) => {
-                match &r.kind {
-                  NonInterpolatedStringLiteral { value: s } => {
-                    println!("Non-interpolated string \"{}\"", s);
-                  }
-                  IntegerLiteral { value: i } => {
-                    println!("Integer literal {}", i);
-                  }
-                  _ => println!("Something else")
-                }
-              }
-              Err(e) => println!("ERROR {}", e.message),
-            }
-          };
-
-          tokenize(&line, callback);
+          let mut compiler = Compiler::new(&input);
+          compiler.compile();
         },
         Err(ReadlineError::Interrupted) => {
           println!("Master Control Program: End of line.");

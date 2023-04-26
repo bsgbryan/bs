@@ -4,6 +4,8 @@ use std::{
   str::Chars,
 };
 
+use crate::error::RuntimeError;
+
 const NEW_LINE: &str = "\n";
 const LEFT_PAREN: &str = "(";
 const RIGHT_PAREN: &str = ")";
@@ -257,4 +259,85 @@ pub fn is_decorate_keyword(k: char, mut iter: Peekable<Chars<'_>>) -> bool {
   iter.next() == Some('a') &&
   iter.next() == Some('t') &&
   iter.next() == Some('e')
+}
+
+pub fn generate_numeric_token(
+  line: usize,
+  mut column: usize,
+  current: &char,
+  mut input: Peekable<Chars<'_>>,
+) -> Result<Token, RuntimeError> {
+  let start = column;
+  let mut value = String::new();
+  let mut dotted = false;
+  let mut valid = true;
+
+  value.push_str(format!("{current}").as_str());
+
+  // TODO Follow the pattern used in the is_type_name block starting on line 146 above
+  while let Some(&next) = input.peek() {
+    if is_integer(next) {
+      column += 1;
+      value.push_str(format!("{next}").as_str());
+      input.next();
+    }
+    else if is_dot(next) {
+      if !dotted {
+        column += 1;
+        value.push_str(format!("{next}").as_str());
+        input.next();
+        dotted = true;
+      }
+      else {
+        value.push_str(format!("{next}").as_str());
+
+        let message = format!("'{value}' starting at {line}:{start} is not a valid floating point number");
+        return Err(RuntimeError {message});
+      }
+    }
+    else if next == ' ' || next == ')' {
+      input.next();
+      break
+    }
+    else {
+      println!("Hmmm {}", value);
+      valid = false;
+      column += 1;
+
+      value.push_str(format!("{next}").as_str());
+
+      break
+    }
+  }
+
+  if valid {
+    column += 1;
+
+    if dotted {
+      if let Ok(v) = value.parse::<f32>() {
+        let kind = TokenKind::FloatLiteral { value: v };
+
+        return Ok(Token { kind, line, column: start, length: column - start });
+      }
+      else {
+        let message = format!("'{value}' starting at {line}:{start} is not a valid f64");
+        return Err(RuntimeError {message});
+      }
+    }
+    else {
+      if let Ok(v) = value.parse::<usize>() {
+        let kind = TokenKind::IntegerLiteral { value: v };
+
+        return Ok(Token { kind, line, column: start, length: column - start });
+      }
+      else {
+        let message = format!("'{value}' starting at {line}:{start} is not a valid integer");
+        return Err(RuntimeError {message});
+      }
+    }
+  }
+  else {
+    let message = format!("'{value}' starting at {line}:{start} is not a valid numeric value");
+    return Err(RuntimeError {message});
+  }
 }
