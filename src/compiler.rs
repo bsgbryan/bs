@@ -40,17 +40,17 @@ pub fn execute(source: &str) -> Result<Chunk, Box<dyn Error>> {
           match o {
             Operator::Add => {
               if let Some(v) = tokens.next() {
-                arithmetic(&OpCode::Add, &v, &mut chunk, tokens.next());
+                arithmetic(&OpCode::Add, &v, &mut chunk, &mut tokens);
               }
             }
             Operator::Divide => {
               if let Some(v) = tokens.next() {
-                arithmetic(&OpCode::Divide, &v, &mut chunk, tokens.next());
+                arithmetic(&OpCode::Divide, &v, &mut chunk, &mut tokens);
               }
             }
             Operator::Multiply => {
               if let Some(v) = tokens.next() {
-                arithmetic(&OpCode::Multiply, &v, &mut chunk, tokens.next());
+                arithmetic(&OpCode::Multiply, &v, &mut chunk, &mut tokens);
               }
             }
             Operator::Negate => {

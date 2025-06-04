@@ -1,3 +1,5 @@
+use std::slice::Iter;
+
 use crate::{
   chunk::Chunk,
   compiler::{
@@ -11,17 +13,19 @@ use crate::{
   },
 };
 
-pub fn expression(
+pub fn expression<'a>(
   op:    &OpCode,
   token: &    Token,
   chunk: &mut Chunk,
-  next:   Option<&Token>,
+  iter:  &mut Iter<'a, Token>,
 ) {
   let mut line = 0;
   
   match token {
     Token::Operator(o) => match o {
-      Operator::Negate => if let Some(v) = next { line = negate(v, chunk); }
+      Operator::Negate => if let Some(v) = iter.next() {
+        line = negate(v, chunk);
+      }
       _ => panic!("Invalid variant({op:?}) for Operator({o:?})")
     }
     Token::Literal(l) => { line = value(l, chunk); }
@@ -56,7 +60,7 @@ mod validate {
   
         let mut chunk = Chunk::new();
   
-        expression(&op, &token, &mut chunk, None);
+        expression(&op, &token, &mut chunk, &mut vec![].iter());
     
         assert_eq!(chunk.codes[0], OpCode::Literal(5.0));
         assert_eq!(chunk.codes[1], op);
@@ -71,7 +75,7 @@ mod validate {
   
         let mut chunk = Chunk::new();
   
-        expression(&op, &token, &mut chunk, None);
+        expression(&op, &token, &mut chunk, &mut vec![].iter());
     
         assert_eq!(chunk.codes[0], OpCode::Literal(5.0));
         assert_eq!(chunk.codes[1], op);
@@ -86,7 +90,7 @@ mod validate {
   
         let mut chunk = Chunk::new();
   
-        expression(&op, &token, &mut chunk, None);
+        expression(&op, &token, &mut chunk, &mut vec![].iter());
     
         assert_eq!(chunk.codes[0], OpCode::Literal(5.0));
         assert_eq!(chunk.codes[1], op);
@@ -114,10 +118,9 @@ mod validate {
         let mut chunk = Chunk::new();
   
         let value = "5".to_string();
-        let num   = Token::Literal(Number(value, 0));
-        let next  = Some(&num);
+        let num   = vec![Token::Literal(Number(value, 0))];
   
-        expression(&op, &token, &mut chunk, next);
+        expression(&op, &token, &mut chunk, &mut num.iter());
     
         assert_eq!(chunk.codes[0], OpCode::Literal(5.0));
         assert_eq!(chunk.codes[1], OpCode::Negate);
@@ -131,10 +134,9 @@ mod validate {
         let mut chunk = Chunk::new();
   
         let value = "5".to_string();
-        let num   = Token::Literal(Number(value, 0));
-        let next  = Some(&num);
+        let num   = vec![Token::Literal(Number(value, 0))];
   
-        expression(&op, &token, &mut chunk, next);
+        expression(&op, &token, &mut chunk, &mut num.iter());
     
         assert_eq!(chunk.codes[0], OpCode::Literal(5.0));
         assert_eq!(chunk.codes[1], OpCode::Negate);
@@ -148,10 +150,9 @@ mod validate {
         let mut chunk = Chunk::new();
   
         let value = "5".to_string();
-        let num   = Token::Literal(Number(value, 0));
-        let next  = Some(&num);
+        let num   = vec![Token::Literal(Number(value, 0))];
   
-        expression(&op, &token, &mut chunk, next);
+        expression(&op, &token, &mut chunk, &mut num.iter());
     
         assert_eq!(chunk.codes[0], OpCode::Literal(5.0));
         assert_eq!(chunk.codes[1], OpCode::Negate);
@@ -181,7 +182,7 @@ mod validate {
   
         let mut chunk = Chunk::new();
   
-        expression(&OpCode::Add, &token, &mut chunk, None);
+        expression(&OpCode::Add, &token, &mut chunk, &mut vec![].iter());
     
         assert_eq!(chunk.lines[0], 1);
         assert_eq!(chunk.lines[1], 1);
@@ -194,7 +195,7 @@ mod validate {
   
         let mut chunk = Chunk::new();
   
-        expression(&OpCode::Divide, &token, &mut chunk, None);
+        expression(&OpCode::Divide, &token, &mut chunk, &mut vec![].iter());
     
         assert_eq!(chunk.lines[0], 1);
         assert_eq!(chunk.lines[1], 1);
@@ -207,7 +208,7 @@ mod validate {
   
         let mut chunk = Chunk::new();
   
-        expression(&OpCode::Multiply, &token, &mut chunk, None);
+        expression(&OpCode::Multiply, &token, &mut chunk, &mut vec![].iter());
     
         assert_eq!(chunk.lines[0], 1);
         assert_eq!(chunk.lines[1], 1);
@@ -234,10 +235,9 @@ mod validate {
         let mut chunk = Chunk::new();
   
         let value = "5".to_string();
-        let num   = Token::Literal(Number(value, 1));
-        let next  = Some(&num);
+        let num   = vec![Token::Literal(Number(value, 1))];
   
-        expression(&OpCode::Add, &token, &mut chunk, next);
+        expression(&OpCode::Add, &token, &mut chunk, &mut num.iter());
     
         assert_eq!(chunk.lines[0], 1);
         assert_eq!(chunk.lines[1], 1);
@@ -250,10 +250,9 @@ mod validate {
         let mut chunk = Chunk::new();
   
         let value = "5".to_string();
-        let num   = Token::Literal(Number(value, 1));
-        let next  = Some(&num);
+        let num   = vec![Token::Literal(Number(value, 1))];
   
-        expression(&OpCode::Divide, &token, &mut chunk, next);
+        expression(&OpCode::Divide, &token, &mut chunk, &mut num.iter());
     
         assert_eq!(chunk.lines[0], 1);
         assert_eq!(chunk.lines[1], 1);
@@ -267,10 +266,9 @@ mod validate {
         let mut chunk = Chunk::new();
   
         let value = "5".to_string();
-        let num   = Token::Literal(Number(value, 1));
-        let next  = Some(&num);
+        let num   = vec![Token::Literal(Number(value, 1))];
   
-        expression(&OpCode::Multiply, &token, &mut chunk, next);
+        expression(&OpCode::Multiply, &token, &mut chunk, &mut num.iter());
     
         assert_eq!(chunk.lines[0], 1);
         assert_eq!(chunk.lines[1], 1);
