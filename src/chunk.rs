@@ -28,8 +28,8 @@ impl Chunk {
     self.constants.count() - 1
   }
 
-  pub fn append(&mut self, code: OpCode, line: u64) {
-    self.codes.push(code);
+  pub fn append(&mut self, code: &OpCode, line: u64) {
+    self.codes.push(code.clone());
     self.lines.push(line);
   }
 

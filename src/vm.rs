@@ -6,6 +6,7 @@ use crate::{
   value::Value,
 };
 
+#[cfg(feature = "debug")]
 fn debug_stack(stack: [Value; u8::MAX as usize], top: u8) {
   print!("::[");
   let mut i = 0;
@@ -23,11 +24,13 @@ fn debug_stack(stack: [Value; u8::MAX as usize], top: u8) {
   println!("]");
 }
 
+#[cfg(feature = "debug")]
 fn debug_push(value: Value, stack: [Value; u8::MAX as usize], top: u8) {
   print!("🥞 + {value}");
   debug_stack(stack, top);
 }
 
+#[cfg(feature = "debug")]
 fn debug_pop(value: Value, stack: [Value; u8::MAX as usize], top: u8) {
   print!("🥞 - {value}");
   debug_stack(stack, top);
@@ -57,16 +60,13 @@ impl VM {
     self.stack_top = 0;
   }
 
-  pub fn interpret(&mut self, chunk: &Chunk) -> Result<(), Box<dyn Error>> {
-    #[cfg(feature = "debug")] {
-      debug_stack(self.stack, self.stack_top);
-      crate::debug::chunk(chunk, "example");
-    }
+  pub fn interpret(&mut self, source: &str) -> Result<(), Box<dyn Error>> {
+    let _ = crate::compiler::execute(source);
 
-    self.run(&chunk)
+    Ok(())
   }
 
-  fn run(&mut self, chunk: &Chunk) -> Result<(), Box<dyn Error>> {
+  fn _run(&mut self, chunk: &Chunk) -> Result<(), Box<dyn Error>> {
     for c in chunk.codes.iter() {
       match c {
         // OpCode::Constant(c) => for con in c.iterable() { self.push(*con); },

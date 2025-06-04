@@ -6,3 +6,7 @@ resolver = "2"
 
 [features]
 debug = []
+
+[dependencies]
+console = "0.15.11"
+unicode-segmentation = "1.12.0"

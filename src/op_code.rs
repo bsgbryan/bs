@@ -3,7 +3,7 @@ use crate::value::{
   // ValuePool,
 };
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum OpCode {
   // Constant(ValuePool),
   Literal(Value),
