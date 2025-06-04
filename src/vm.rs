@@ -61,12 +61,17 @@ impl VM {
   }
 
   pub fn interpret(&mut self, source: &str) -> Result<(), Box<dyn Error>> {
-    let _ = crate::compiler::execute(source);
+    if let Ok(chunk) = crate::compiler::execute(source) {
+      #[cfg(feature = "debug")]
+      println!("{chunk:#?}");
+
+      self.run(&chunk)?;
+    }
 
     Ok(())
   }
 
-  fn _run(&mut self, chunk: &Chunk) -> Result<(), Box<dyn Error>> {
+  fn run(&mut self, chunk: &Chunk) -> Result<(), Box<dyn Error>> {
     for c in chunk.codes.iter() {
       match c {
         // OpCode::Constant(c) => for con in c.iterable() { self.push(*con); },
