@@ -24,7 +24,8 @@ pub fn execute(source: &str) -> Result<Chunk, Box<dyn Error>> {
   let     tokens = scan(source);
   let mut tokens = tokens.iter();
 
-  println!("{tokens:#?}");
+  #[cfg(feature = "debug")]
+  println!("TOKENS: {tokens:#?}");
 
   loop {
     if let Some(t) = tokens.next() {
