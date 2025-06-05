@@ -1,5 +1,3 @@
-use std::error::Error;
-
 use crate::{
   chunk::Chunk,
   op_code::OpCode,
@@ -60,63 +58,69 @@ impl VM {
     self.stack_top = 0;
   }
 
-  pub fn interpret(&mut self, source: &str) -> Result<(), Box<dyn Error>> {
+  pub fn interpret(&mut self, source: &str) {
     if let Ok(chunk) = crate::compiler::execute(source) {
       #[cfg(feature = "debug")]
       println!("{chunk:#?}");
 
-      self.run(&chunk)?;
+      self.run(&chunk);
     }
-
-    Ok(())
   }
 
-  fn run(&mut self, chunk: &Chunk) -> Result<(), Box<dyn Error>> {
+  fn run(&mut self, chunk: &Chunk) {
+    use crate::op_code::{
+      Arithmetic::{
+        Add,
+        Divide,
+        Multiply,
+        Negate,
+        Subtract,
+      },
+      ControlFlow::Return,
+      OpCode,
+    };
+
     for c in chunk.codes.iter() {
       match c {
-        // OpCode::Constant(c) => for con in c.iterable() { self.push(*con); },
-        OpCode::Literal(l)  => self.push(*l),
-        OpCode::Return => {
-          self.pop();
+        OpCode::Literal(l)  => { self.push(*l) }
+        OpCode::ControlFlow(c) => {
+          match c { Return => { self.pop(); } }
+        }
+        OpCode::Arithmetic(a) => {
+          match a {
+            Negate => {
+              let value = -self.pop();
 
-          return Ok(())
-        },
-        // --- Arithmetic --- //
-        // Unary
-        OpCode::Negate => {
-          let value = -self.pop();
+              self.push(value);
+            }
+            Add => {
+              let rhs = self.pop();
+              let lhs = self.pop();
 
-          self.push(value);
-        },
-        // Binary
-        OpCode::Add => {
-          let rhs = self.pop();
-          let lhs = self.pop();
+              self.push(lhs + rhs);
+            }
+            Divide => {
+              let rhs = self.pop();
+              let lhs = self.pop();
 
-          self.push(lhs + rhs);
-        },
-        OpCode::Divide => {
-          let rhs = self.pop();
-          let lhs = self.pop();
+              self.push(lhs / rhs);
+            }
+            Multiply => {
+              let rhs = self.pop();
+              let lhs = self.pop();
 
-          self.push(lhs / rhs);
-        },
-        OpCode::Multiply => {
-          let rhs = self.pop();
-          let lhs = self.pop();
+              self.push(lhs * rhs);
+            }
+            Subtract => {
+              let rhs = self.pop();
+              let lhs = self.pop();
 
-          self.push(lhs * rhs);
-        },
-        OpCode::Subtract => {
-          let rhs = self.pop();
-          let lhs = self.pop();
-
-          self.push(lhs - rhs);
-        },
+              self.push(lhs - rhs);
+            }
+          }
+        }
       }
     }
-
-    Ok(())
   }
 
   pub fn pop(&mut self) -> Value {

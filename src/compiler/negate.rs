@@ -17,7 +17,9 @@ pub fn expression(
     _ => (/* TODO Implement error reporting here */)
   }
 
-  chunk.append(&OpCode::Negate, line);
+  use crate::op_code::Arithmetic::Negate;
+
+  chunk.append(&OpCode::Arithmetic(Negate), line);
 
   line
 }
@@ -47,7 +49,10 @@ mod validate {
       expression(&token, &mut chunk);
 
       assert_eq!(chunk.codes[0], OpCode::Literal(5.0));
-      assert_eq!(chunk.codes[1], OpCode::Negate);
+
+      use crate::op_code::Arithmetic::Negate;
+
+      assert_eq!(chunk.codes[1], OpCode::Arithmetic(Negate));
     }
   }
 

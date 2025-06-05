@@ -20,21 +20,34 @@ pub fn chunk(chunk: &Chunk, id: &str) {
 }
 
 pub fn instruction(op_code: &OpCode, index: u64, line: u64, same_line: bool) {
+  use crate::op_code::{
+    Arithmetic::{
+      Add,
+      Divide,
+      Multiply,
+      Negate,
+      Subtract,
+    },
+    ControlFlow::Return,
+  };
+
   if same_line { print!("{:>9} | {index}=",         ""); }
   else         { print!("{:>7}{line:0>4}:{index}=", ""); }
 
   match op_code {
-    // OpCode::Constant(v) =>  multi_value("OP_CONSTANT", v),
-    OpCode::Literal(l)  => single_value("OP_LITERAL",  l),
-    OpCode::Return      =>     no_value("OP_RETURN"     ),
-    // --- Arithmetic --- /
-    // Unary
-    OpCode::Negate => no_value("OP_NEGATE"),
-    // Binary
-    OpCode::Add      => no_value("OP_ADD"     ),
-    OpCode::Divide   => no_value("OP_DIVIDE"  ),
-    OpCode::Multiply => no_value("OP_MULTIPLY"),
-    OpCode::Subtract => no_value("OP_SUBTRACT"),
+    OpCode::Literal(l)     => { single_value("OP_LITERAL", l) }
+    OpCode::ControlFlow(c) => {
+      match c { Return => no_value("OP_RETURN") }
+    }
+    OpCode::Arithmetic(a)  => {
+      match a {
+        Negate   => no_value("OP_NEGATE"  ),
+        Add      => no_value("OP_ADD"     ),
+        Divide   => no_value("OP_DIVIDE"  ),
+        Multiply => no_value("OP_MULTIPLY"),
+        Subtract => no_value("OP_SUBTRACT"),
+      }
+    }
   }
 }
 

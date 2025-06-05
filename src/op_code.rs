@@ -1,19 +1,22 @@
-use crate::value::{
-  Value,
-  // ValuePool,
-};
+use crate::value::Value;
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum OpCode {
-  // Constant(ValuePool),
   Literal(Value),
-  Return,
-  // --- Arithmetic --- //
-  // Unary
+  ControlFlow(ControlFlow),
+  Arithmetic(Arithmetic)
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum Arithmetic {
   Negate,
-  // Binary
   Add,
   Divide,
   Multiply,
   Subtract,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum ControlFlow {
+  Return,
 }

@@ -32,8 +32,10 @@ pub fn execute(source: &str) -> Result<Chunk, Box<dyn Error>> {
       match t {
         Token::Literal(l) => { let _ = value(&l, &mut chunk); },
         Token::Keyword(k) => {
+          use crate::op_code::ControlFlow::Return;
+
           match k {
-            Keyword::Return(line) => chunk.append(&OpCode::Return, *line),
+            Keyword::Return(line) => chunk.append(&OpCode::ControlFlow(Return), *line),
             _ => ()
           }
         }
@@ -41,17 +43,23 @@ pub fn execute(source: &str) -> Result<Chunk, Box<dyn Error>> {
           match o {
             Operator::Add => {
               if let Some(v) = tokens.next() {
-                arithmetic(&OpCode::Add, &v, &mut chunk, &mut tokens);
+                use crate::op_code::Arithmetic::Add;
+
+                arithmetic(&OpCode::Arithmetic(Add), &v, &mut chunk, &mut tokens);
               }
             }
             Operator::Divide => {
               if let Some(v) = tokens.next() {
-                arithmetic(&OpCode::Divide, &v, &mut chunk, &mut tokens);
+                use crate::op_code::Arithmetic::Divide;
+
+                arithmetic(&OpCode::Arithmetic(Divide), &v, &mut chunk, &mut tokens);
               }
             }
             Operator::Multiply => {
               if let Some(v) = tokens.next() {
-                arithmetic(&OpCode::Multiply, &v, &mut chunk, &mut tokens);
+                use crate::op_code::Arithmetic::Multiply;
+
+                arithmetic(&OpCode::Arithmetic(Multiply), &v, &mut chunk, &mut tokens);
               }
             }
             Operator::Negate => {
@@ -61,8 +69,10 @@ pub fn execute(source: &str) -> Result<Chunk, Box<dyn Error>> {
                 let code_count = chunk.codes.iter().count();
 
                 if code_count >= 3 {
+                  use crate::op_code::Arithmetic::Add;
+
                   match chunk.codes[code_count - 3] {
-                    OpCode::Literal(_) => chunk.append(&OpCode::Add, line),
+                    OpCode::Literal(_) => chunk.append(&OpCode::Arithmetic(Add), line),
                     _ => ()
                   }
                 }
@@ -117,8 +127,10 @@ mod validate {
   
       #[test]
       fn codes() {
+        use crate::op_code::ControlFlow::Return;
+
         match compile("return") {
-          Ok(output) => { assert_eq!(output.codes[0], OpCode::Return); }
+          Ok(output) => { assert_eq!(output.codes[0], OpCode::ControlFlow(Return)); }
           Err(e)     => { panic!("Source compilation failed: {e:#?}"); }
         }
       }
@@ -146,7 +158,10 @@ mod validate {
           Ok(output) => {
             assert_eq!(output.codes[0], OpCode::Literal(4.0));
             assert_eq!(output.codes[1], OpCode::Literal(5.0));
-            assert_eq!(output.codes[2], OpCode::Add);
+
+            use crate::op_code::Arithmetic::Add;
+
+            assert_eq!(output.codes[2], OpCode::Arithmetic(Add));
           }
           Err(e) => panic!("Source compilation failed: {e:#?}")
         }
@@ -177,7 +192,10 @@ mod validate {
           Ok(output) => {
             assert_eq!(output.codes[0], OpCode::Literal(4.0));
             assert_eq!(output.codes[1], OpCode::Literal(5.0));
-            assert_eq!(output.codes[2], OpCode::Divide);
+
+            use crate::op_code::Arithmetic::Divide;
+
+            assert_eq!(output.codes[2], OpCode::Arithmetic(Divide));
           }
           Err(e) => panic!("Source compilation failed: {e:#?}")
         }
@@ -208,7 +226,10 @@ mod validate {
           Ok(output) => {
             assert_eq!(output.codes[0], OpCode::Literal(4.0));
             assert_eq!(output.codes[1], OpCode::Literal(5.0));
-            assert_eq!(output.codes[2], OpCode::Multiply);
+
+            use crate::op_code::Arithmetic::Multiply;
+
+            assert_eq!(output.codes[2], OpCode::Arithmetic(Multiply));
           }
           Err(e) => panic!("Source compilation failed: {e:#?}")
         }
@@ -238,7 +259,10 @@ mod validate {
         match compile("-5") {
           Ok(output) => {
             assert_eq!(output.codes[0], OpCode::Literal(5.0));
-            assert_eq!(output.codes[1], OpCode::Negate);
+
+            use crate::op_code::Arithmetic::Negate;
+
+            assert_eq!(output.codes[1], OpCode::Arithmetic(Negate));
           }
           Err(e) => panic!("Source compilation failed: {e:#?}")
         }
@@ -268,8 +292,14 @@ mod validate {
           Ok(output) => {
             assert_eq!(output.codes[0], OpCode::Literal(4.0));
             assert_eq!(output.codes[1], OpCode::Literal(5.0));
-            assert_eq!(output.codes[2], OpCode::Negate);
-            assert_eq!(output.codes[3], OpCode::Add);
+
+            use crate::op_code::Arithmetic::{
+              Add,
+              Negate,
+            };
+
+            assert_eq!(output.codes[2], OpCode::Arithmetic(Negate));
+            assert_eq!(output.codes[3], OpCode::Arithmetic(Add));
           }
           Err(e) => panic!("Source compilation failed: {e:#?}")
         }
