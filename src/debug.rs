@@ -1,10 +1,7 @@
 use crate::{
   chunk::Chunk,
   op_code::OpCode,
-  value::{
-    Value,
-    // ValuePool,
-  },
+  value::Value,
 };
 
 pub fn chunk(chunk: &Chunk, id: &str) {
@@ -58,7 +55,3 @@ fn no_value(name: &str) {
 fn single_value(name: &str, value: &Value) {
   println!("{name}({value})");
 }
-
-// fn multi_value(name: &str, values: &ValuePool) {
-//   println!("{name}({values:?})");
-// }
