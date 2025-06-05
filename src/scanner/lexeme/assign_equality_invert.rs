@@ -4,7 +4,6 @@ use crate::token::Token;
 
 pub fn process<'a>(
   lexeme: &    str,
-  line:        u64,
   iter:   &mut Iter<'a, &str>,
 ) -> Vec<Token> {
   match lexeme {
@@ -15,7 +14,7 @@ pub fn process<'a>(
 
           let mut out = Vec::with_capacity(1);
 
-          out.push(Token::Equality(Equal(line)));
+          out.push(Token::Equality(Equal));
 
           return out
         }
@@ -25,8 +24,8 @@ pub fn process<'a>(
 
           let mut out = Vec::with_capacity(2);
           
-          out.push(Token::Operator(Assign(line)));
-          out.append(&mut super::process(n, line, iter));
+          out.push(Token::Operator(Assign));
+          out.append(&mut super::process(n, iter));
 
           return out
         }
@@ -40,7 +39,7 @@ pub fn process<'a>(
 
           let mut out = Vec::with_capacity(1);
 
-          out.push(Token::Equality(GreaterOrEqual(line)));
+          out.push(Token::Equality(GreaterOrEqual));
 
           return out
         }
@@ -49,8 +48,8 @@ pub fn process<'a>(
 
           let mut out = Vec::with_capacity(2);
 
-          out.push(Token::Equality(Greater(line)));
-          out.append(&mut super::process(n, line, iter));
+          out.push(Token::Equality(Greater));
+          out.append(&mut super::process(n, iter));
 
           return out
         }
@@ -64,7 +63,7 @@ pub fn process<'a>(
 
           let mut out = Vec::with_capacity(1);
 
-          out.push(Token::Equality(LessOrEqual(line)));
+          out.push(Token::Equality(LessOrEqual));
 
           return out
         }
@@ -73,8 +72,8 @@ pub fn process<'a>(
 
           let mut out = Vec::with_capacity(2);
 
-          out.push(Token::Equality(Less(line)));
-          out.append(&mut super::process(n, line, iter));
+          out.push(Token::Equality(Less));
+          out.append(&mut super::process(n, iter));
 
           return out
         }
@@ -88,7 +87,7 @@ pub fn process<'a>(
 
           let mut out = Vec::with_capacity(1);
 
-          out.push(Token::Equality(NotEqual(line)));
+          out.push(Token::Equality(NotEqual));
 
           return out
         }
@@ -101,14 +100,14 @@ pub fn process<'a>(
             Operator::Invert,
           };
 
-          let tokens = super::process(n, line, iter);
+          let tokens = super::process(n, iter);
           
           if tokens[0] == Token::Keyword(False) ||
              tokens[0] == Token::Keyword(True)
           {
             let mut out = Vec::with_capacity(2);
 
-            out.append(&mut super::process(n, line, iter));
+            out.append(&mut super::process(n, iter));
             out.push(Token::Operator(Invert));
   
             return out
@@ -134,12 +133,12 @@ mod validate {
     let mut iter    = lexemes.iter();
     
     if let Some(token) = iter.next() {
-      let tokens = super::process(token, 1, &mut iter);
+      let tokens = super::process(token, &mut iter);
 
       assert_eq!(tokens.iter().count(), 2);
 
       if let Some(t) = tokens.iter().next() {
-        assert_eq!(*t, Token::Operator(Assign(1)));
+        assert_eq!(*t, Token::Operator(Assign));
       }
       else { panic!("Expected a Token, got None"); }
     }
@@ -153,12 +152,12 @@ mod validate {
     let mut iter    = lexemes.iter();
     
     if let Some(token) = iter.next() {
-      let tokens = super::process(token, 1, &mut iter);
+      let tokens = super::process(token, &mut iter);
 
       assert_eq!(tokens.iter().count(), 1);
 
       if let Some(t) = tokens.iter().next() {
-        assert_eq!(*t, Token::Equality(Equal(1)));
+        assert_eq!(*t, Token::Equality(Equal));
       }
       else { panic!("Expected a Token, got None"); }
     }
@@ -175,7 +174,7 @@ mod validate {
     let mut iter    = lexemes.iter();
     
     if let Some(token) = iter.next() {
-      let     tokens = super::process(token, 1, &mut iter);
+      let     tokens = super::process(token, &mut iter);
       let mut tokens = tokens.iter();
 
       assert_eq!(tokens.clone().count(), 2);
@@ -184,13 +183,13 @@ mod validate {
       let second = tokens.next();
 
       if let Some(t) = first {
-        assert_eq!(*t, Token::Equality(Greater(1)));
+        assert_eq!(*t, Token::Equality(Greater));
       }
       else { panic!("Expected a Token, got None"); }
 
       if let Some(t) = second {
         let value = "2".to_string();
-        assert_eq!(*t, Token::Literal(Number(value, 1)));
+        assert_eq!(*t, Token::Literal(Number(value)));
       }
       else { panic!("Expected a Token, got None"); }
     }
@@ -204,12 +203,12 @@ mod validate {
     let mut iter    = lexemes.iter();
     
     if let Some(token) = iter.next() {
-      let tokens = super::process(token, 1, &mut iter);
+      let tokens = super::process(token, &mut iter);
 
       assert_eq!(tokens.iter().count(), 1);
 
       if let Some(t) = tokens.iter().next() {
-        assert_eq!(*t, Token::Equality(GreaterOrEqual(1)));
+        assert_eq!(*t, Token::Equality(GreaterOrEqual));
       }
       else { panic!("Expected a Token, got None"); }
     }
@@ -226,7 +225,7 @@ mod validate {
     let mut iter    = lexemes.iter();
     
     if let Some(token) = iter.next() {
-      let     tokens = super::process(token, 1, &mut iter);
+      let     tokens = super::process(token, &mut iter);
       let mut tokens = tokens.iter();
 
       assert_eq!(tokens.clone().count(), 2);
@@ -257,7 +256,7 @@ mod validate {
     let mut iter    = lexemes.iter();
     
     if let Some(token) = iter.next() {
-      let     tokens = super::process(token, 1, &mut iter);
+      let     tokens = super::process(token, &mut iter);
       let mut tokens = tokens.iter();
 
       assert_eq!(tokens.clone().count(), 2);
@@ -266,13 +265,13 @@ mod validate {
       let second = tokens.next();
 
       if let Some(t) = first {
-        assert_eq!(*t, Token::Equality(Less(1)));
+        assert_eq!(*t, Token::Equality(Less));
       }
       else { panic!("Expected a Token, got None"); }
 
       if let Some(t) = second {
         let value = "2".to_string();
-        assert_eq!(*t, Token::Literal(Number(value, 1)));
+        assert_eq!(*t, Token::Literal(Number(value)));
       }
       else { panic!("Expected a Token, got None"); }
     }
@@ -286,12 +285,12 @@ mod validate {
     let mut iter    = lexemes.iter();
     
     if let Some(token) = iter.next() {
-      let tokens = super::process(token, 1, &mut iter);
+      let tokens = super::process(token, &mut iter);
 
       assert_eq!(tokens.iter().count(), 1);
 
       if let Some(t) = tokens.iter().next() {
-        assert_eq!(*t, Token::Equality(LessOrEqual(1)));
+        assert_eq!(*t, Token::Equality(LessOrEqual));
       }
       else { panic!("Expected a Token, got None"); }
     }
@@ -305,12 +304,12 @@ mod validate {
     let mut iter    = lexemes.iter();
     
     if let Some(token) = iter.next() {
-      let tokens = super::process(token, 1, &mut iter);
+      let tokens = super::process(token, &mut iter);
 
       assert_eq!(tokens.iter().count(), 1);
 
       if let Some(t) = tokens.iter().next() {
-        assert_eq!(*t, Token::Equality(NotEqual(1)));
+        assert_eq!(*t, Token::Equality(NotEqual));
       }
       else { panic!("Expected a Token, got None"); }
     }

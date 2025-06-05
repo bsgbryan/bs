@@ -10,63 +10,63 @@ pub enum Token {
 
 #[derive(Debug, PartialEq)]
 pub enum Equality {
-  Equal(u64),
-  Greater(u64),
-  GreaterOrEqual(u64),
-  Less(u64),
-  LessOrEqual(u64),
-  NotEqual(u64),
+  Equal,
+  Greater,
+  GreaterOrEqual,
+  Less,
+  LessOrEqual,
+  NotEqual,
 }
 
 #[derive(Debug, PartialEq)]
 pub enum Error {
-  Invalid(String, u64),
+  Invalid(String),
 }
 
 #[derive(Debug, PartialEq)]
 pub enum Keyword {
-  And(u64),
-  Const(u64),
-  Else(u64),
+  And,
+  Const,
+  Else,
   False,
-  Fun(u64),
-  If(u64),
-  Loop(u64),
-  Or(u64),
-  Print(u64),
-  Return(u64),
+  Fun,
+  If,
+  Loop,
+  Or,
+  Print,
+  Return,
   True,
-  Var(u64),
-  While(u64),
+  Var,
+  While,
 }
 
 #[derive(Debug, PartialEq)]
 pub enum Literal {
-  Identifier(String, u64),
-  InterpolatedString(String, u64),
-  String(String, u64),
-  Number(String, u64),
+  Identifier(String),
+  InterpolatedString(String),
+  String(String),
+  Number(String),
 }
 
 #[derive(Debug, PartialEq)]
 pub enum Operator {
   Add,
-  Assign(u64),
+  Assign,
   Divide,
   Invert,
   Multiply,
   Negate,
-  Not(u64),
+  Not,
 }
 
 #[derive(Debug, PartialEq)]
 pub enum Scope {
-  CloseBracet(u64),
-  CloseParen(u64),
-  Colon(u64),
-  Comma(u64),
-  Dot(u64),
-  OpenBracet(u64),
-  OpenParen(u64),
-  SELF(u64),
+  CloseBracet,
+  CloseParen,
+  Colon,
+  Comma,
+  Dot,
+  OpenBracet,
+  OpenParen,
+  SELF,
 }

@@ -10,16 +10,15 @@ pub fn scan(line: &str) -> Vec<Token> {
   let     split   = line.split_word_bounds().collect::<Vec<&str>>();
   let mut lexemes = split.iter();
   let mut tokens  = vec![];
-  let mut line    = 1;
 
   loop {
     if let Some(&lexeme) = lexemes.next() {
-      if lexeme == "\n" { line += 1; continue; }
+      if lexeme == "\n" { continue; }
       if let Some(first) = lexeme.chars().nth(0) {
         if first.is_whitespace() { continue; }
       }
 
-      for token in process(lexeme, line, &mut lexemes) {
+      for token in process(lexeme, &mut lexemes) {
         tokens.push(token);
       }
     }
@@ -50,8 +49,8 @@ mod validate {
       let first = tokens.next();
 
       match first {
-        Some(t) => { assert_eq!(*t, Token::Equality(Equal(1))) }
-        None    => { panic!("Expected a Token, got None")      }
+        Some(t) => { assert_eq!(*t, Token::Equality(Equal)) }
+        None    => { panic!("Expected a Token, got None")   }
       }
     }
   }
@@ -77,14 +76,14 @@ mod validate {
       let second = tokens.next();
 
       match first {
-        Some(t) => { assert_eq!(*t, Token::Operator(Assign(1))) }
-        None    => { panic!("Expected a Token, got None")       }
+        Some(t) => { assert_eq!(*t, Token::Operator(Assign)) }
+        None    => { panic!("Expected a Token, got None")    }
       }
 
       match second {
         Some(t) => {
           let value = "4".to_string();
-          assert_eq!(*t, Token::Literal(Number(value, 1)));
+          assert_eq!(*t, Token::Literal(Number(value)));
         }
         None => { panic!("Expected a Token, got None") }
       }

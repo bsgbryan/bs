@@ -7,7 +7,6 @@ use crate::token::{
 
 pub fn process<'a>(
   lexeme: &    str,
-  line:        u64,
   iter:   &mut Iter<'a, &str>,
 ) -> Option<Token> {
   if lexeme == "\"" {
@@ -20,7 +19,7 @@ pub fn process<'a>(
       }
     }
 
-    Some(Token::Literal(BSString(value, line)))
+    Some(Token::Literal(BSString(value)))
   }
   else { None }
 }
@@ -37,9 +36,9 @@ mod validate {
     let mut iter  = value.iter();
     
     if let Some(lexeme) = iter.next() {
-      if let Some(output) = super::process(lexeme, 1, &mut iter) {
+      if let Some(output) = super::process(lexeme, &mut iter) {
         let value    = "Hello, World!".to_string();
-        let greeting = String(value, 1);
+        let greeting = String(value);
 
         assert_eq!(output, Token::Literal(greeting));
       }

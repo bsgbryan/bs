@@ -7,16 +7,10 @@ use crate::{
 pub fn chunk(chunk: &Chunk, id: &str) {
   println!("CHUNK: {id}");
 
-  let mut i = 0;
-
-  for c in chunk.codes.iter() {
-    instruction(&c, i, chunk.lines[i as usize], i > 0 && (chunk.lines[i as usize] == chunk.lines[(i - 1) as usize]));
-
-    i += 1;
-  }
+  for c in chunk.codes.iter() { instruction(&c); }
 }
 
-pub fn instruction(op_code: &OpCode, index: u64, line: u64, same_line: bool) {
+pub fn instruction(op_code: &OpCode) {
   use crate::op_code::{
     Arithmetic::{
       Add,
@@ -27,9 +21,6 @@ pub fn instruction(op_code: &OpCode, index: u64, line: u64, same_line: bool) {
     },
     ControlFlow::Return,
   };
-
-  if same_line { print!("{:>9} | {index}=",         ""); }
-  else         { print!("{:>7}{line:0>4}:{index}=", ""); }
 
   match op_code {
     OpCode::Literal(l)     => { single_value("OP_LITERAL", l) }

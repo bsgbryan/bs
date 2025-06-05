@@ -35,7 +35,7 @@ pub fn execute(source: &str) -> Result<Chunk, Box<dyn Error>> {
           use crate::op_code::ControlFlow::Return;
 
           match k {
-            Keyword::Return(line) => chunk.append(&OpCode::ControlFlow(Return), *line),
+            Keyword::Return => chunk.append(&OpCode::ControlFlow(Return)),
             _ => ()
           }
         }
@@ -64,7 +64,7 @@ pub fn execute(source: &str) -> Result<Chunk, Box<dyn Error>> {
             }
             Operator::Negate => {
               if let Some(v) = tokens.next() {
-                let line = negate(v, &mut chunk);
+                let _ = negate(v, &mut chunk);
 
                 let code_count = chunk.codes.iter().count();
 
@@ -72,7 +72,7 @@ pub fn execute(source: &str) -> Result<Chunk, Box<dyn Error>> {
                   use crate::op_code::Arithmetic::Add;
 
                   match chunk.codes[code_count - 3] {
-                    OpCode::Literal(_) => chunk.append(&OpCode::Arithmetic(Add), line),
+                    OpCode::Literal(_) => chunk.append(&OpCode::Arithmetic(Add)),
                     _ => ()
                   }
                 }
@@ -107,14 +107,6 @@ mod validate {
           Err(e)     => { panic!("Source compilation failed: {e:#?}"); }
         }
       }
-  
-      #[test]
-      fn lines() {
-        match compile("4") {
-          Ok(output) => { assert_eq!(output.lines[0], 1);              }
-          Err(e)     => { panic!("Source compilation failed: {e:#?}"); }
-        }
-      }
     }
   }
 
@@ -131,14 +123,6 @@ mod validate {
 
         match compile("return") {
           Ok(output) => { assert_eq!(output.codes[0], OpCode::ControlFlow(Return)); }
-          Err(e)     => { panic!("Source compilation failed: {e:#?}"); }
-        }
-      }
-  
-      #[test]
-      fn lines() {
-        match compile("return") {
-          Ok(output) => { assert_eq!(output.lines[0], 1);              }
           Err(e)     => { panic!("Source compilation failed: {e:#?}"); }
         }
       }
@@ -166,18 +150,6 @@ mod validate {
           Err(e) => panic!("Source compilation failed: {e:#?}")
         }
       }
-  
-      #[test]
-      fn lines() {
-        match compile("4+5") {
-          Ok(output) => {
-            assert_eq!(output.lines[0], 1);
-            assert_eq!(output.lines[1], 1);
-            assert_eq!(output.lines[2], 1);
-          }
-          Err(e) => panic!("Source compilation failed: {e:#?}")
-        }
-      }
     }
 
     mod divide {
@@ -196,18 +168,6 @@ mod validate {
             use crate::op_code::Arithmetic::Divide;
 
             assert_eq!(output.codes[2], OpCode::Arithmetic(Divide));
-          }
-          Err(e) => panic!("Source compilation failed: {e:#?}")
-        }
-      }
-  
-      #[test]
-      fn lines() {
-        match compile("4/5") {
-          Ok(output) => {
-            assert_eq!(output.lines[0], 1);
-            assert_eq!(output.lines[1], 1);
-            assert_eq!(output.lines[2], 1);
           }
           Err(e) => panic!("Source compilation failed: {e:#?}")
         }
@@ -234,18 +194,6 @@ mod validate {
           Err(e) => panic!("Source compilation failed: {e:#?}")
         }
       }
-  
-      #[test]
-      fn lines() {
-        match compile("4/5") {
-          Ok(output) => {
-            assert_eq!(output.lines[0], 1);
-            assert_eq!(output.lines[1], 1);
-            assert_eq!(output.lines[2], 1);
-          }
-          Err(e) => panic!("Source compilation failed: {e:#?}")
-        }
-      }
     }
 
     mod negate {
@@ -263,17 +211,6 @@ mod validate {
             use crate::op_code::Arithmetic::Negate;
 
             assert_eq!(output.codes[1], OpCode::Arithmetic(Negate));
-          }
-          Err(e) => panic!("Source compilation failed: {e:#?}")
-        }
-      }
-  
-      #[test]
-      fn lines() {
-        match compile("-5") {
-          Ok(output) => {
-            assert_eq!(output.lines[0], 1);
-            assert_eq!(output.lines[1], 1);
           }
           Err(e) => panic!("Source compilation failed: {e:#?}")
         }
@@ -300,19 +237,6 @@ mod validate {
 
             assert_eq!(output.codes[2], OpCode::Arithmetic(Negate));
             assert_eq!(output.codes[3], OpCode::Arithmetic(Add));
-          }
-          Err(e) => panic!("Source compilation failed: {e:#?}")
-        }
-      }
-  
-      #[test]
-      fn lines() {
-        match compile("4-5") {
-          Ok(output) => {
-            assert_eq!(output.lines[0], 1);
-            assert_eq!(output.lines[1], 1);
-            assert_eq!(output.lines[2], 1);
-            assert_eq!(output.lines[3], 1);
           }
           Err(e) => panic!("Source compilation failed: {e:#?}")
         }

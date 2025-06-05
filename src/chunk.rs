@@ -10,7 +10,6 @@ use crate::{
 pub struct Chunk {
   pub codes:     Vec<OpCode>,
   pub constants: ValuePool,
-  pub lines:     Vec<u64>,
 }
 
 impl Chunk {
@@ -18,7 +17,6 @@ impl Chunk {
     Chunk {
       codes:     vec![],
       constants: ValuePool::new(),
-      lines:     vec![],
     }
   }
 
@@ -28,14 +26,12 @@ impl Chunk {
     self.constants.count() - 1
   }
 
-  pub fn append(&mut self, code: &OpCode, line: u64) {
+  pub fn append(&mut self, code: &OpCode) {
     self.codes.push(code.clone());
-    self.lines.push(line);
   }
 
   pub fn free(&mut self) {
     self.codes.clear();
     self.constants.clear();
-    self.lines.clear();
   }
 }
