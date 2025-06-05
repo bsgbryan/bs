@@ -1,8 +1,11 @@
 use std::io::Write;
 
-use console::{Key, Term};
+use console::{
+  Key,
+  Term,
+};
 
-use crate::vm::VM;
+use crate::vm::interpret;
 
 pub fn execute() -> std::io::Result<()> {
   let mut term = Term::stdout();
@@ -22,7 +25,7 @@ pub fn execute() -> std::io::Result<()> {
           
           let source = chars.join("\n");
 
-          let _ = VM::new().interpret(&source);
+          interpret(&source);
 
           chars.clear();
           chars.push(String::new());

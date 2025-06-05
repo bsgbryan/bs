@@ -1,4 +1,5 @@
 #![feature(ascii_char)]
+#![feature(let_chains)]
 
 pub mod chunk;
 pub mod compiler;

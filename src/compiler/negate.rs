@@ -30,21 +30,22 @@ mod validate {
       },
       op_code::OpCode,
       token::{
-        Literal::Number,
+        Literal::Number as NumberToken,
         Token,
       },
+      value::Value::Number,
     };
 
     #[test]
     fn correctly_ordered() {
       let value = "5".to_string();
-      let token = Token::Literal(Number(value));
+      let token = Token::Literal(NumberToken(value));
 
       let mut chunk = Chunk::new();
 
       expression(&token, &mut chunk);
 
-      assert_eq!(chunk.codes[0], OpCode::Literal(5.0));
+      assert_eq!(chunk.codes[0], OpCode::Literal(Number(5.0)));
 
       use crate::op_code::Arithmetic::Negate;
 

@@ -1,19 +1,25 @@
+#[cfg(feature = "debug")]
+use std::fmt::Debug;
+
 use crate::{
   chunk::Chunk,
-  op_code::OpCode,
   value::Value,
 };
 
 #[cfg(feature = "debug")]
-fn debug_stack(stack: [Value; u8::MAX as usize], top: u8) {
-  print!("::[");
+fn debug_stack<T>(stack: &Vec<T>) where T: Debug {
+  print!("🥞::[");
+
+  let top = stack.iter().count();
+
   let mut i = 0;
+
   for s in stack {
     if i < top {
       if i < top {
         if i > 0 { print!(","); }
 
-        print!("{s}");
+        print!("{s:?}");
       }
     }
     else { break }
@@ -23,124 +29,140 @@ fn debug_stack(stack: [Value; u8::MAX as usize], top: u8) {
 }
 
 #[cfg(feature = "debug")]
-fn debug_push(value: Value, stack: [Value; u8::MAX as usize], top: u8) {
-  print!("🥞 + {value}");
-  debug_stack(stack, top);
+fn debug_push(value: &Value) {
+  println!("🥞 + {value:?}");
 }
 
 #[cfg(feature = "debug")]
-fn debug_pop(value: Value, stack: [Value; u8::MAX as usize], top: u8) {
-  print!("🥞 - {value}");
-  debug_stack(stack, top);
+fn debug_pop(value: &Value) {
+  println!("🥞 - {value:?}");
 }
 
-pub struct VM {
-  chunk: Option<Chunk>,
-  ip:    Option<OpCode>,
-  stack:    [Value; u8::MAX as usize],
-  stack_top: u8,
+struct Stack<T> {
+  entries: Vec<T>,
 }
 
-impl VM {
-  pub fn new() -> Self {
-    Self {
-      chunk: None,
-      ip:    None,
-      stack:    [0.0; u8::MAX as usize],
-      stack_top: 0,
+impl<T> Default for Stack<T> {
+  fn default() -> Self {
+    Self { entries: Vec::with_capacity(256) }
+  }
+}
+
+impl Stack<Value> {
+  pub fn push(&mut self, value: Value) {
+    #[cfg(feature = "debug")] {
+      debug_stack(&self.entries);
+      debug_push(&value);
+    }
+
+    self.entries.push(value);
+
+    #[cfg(feature = "debug")] {
+      debug_stack(&self.entries);
+      println!();
     }
   }
 
-  pub fn free(&mut self) {
-    self.chunk = None;
-    self.ip    = None;
-    self.stack =    [0.0; u8::MAX as usize];
-    self.stack_top = 0;
-  }
+  pub fn pop(&mut self) -> Option<Value> {
+    #[cfg(feature = "debug")]
+    debug_stack(&self.entries);
 
-  pub fn interpret(&mut self, source: &str) {
-    if let Ok(chunk) = crate::compiler::execute(source) {
-      #[cfg(feature = "debug")]
-      println!("{chunk:#?}");
+    let out = self.entries.pop();
 
-      self.run(&chunk);
+    #[cfg(feature = "debug")] {
+      if let Some(ref o) = out {
+        debug_pop(&o);
+        debug_stack(&self.entries);
+        println!();
+      }
+      else { eprintln!("Attempted to pop, but nothing on stack") }
     }
+
+    out
   }
+}
 
-  fn run(&mut self, chunk: &Chunk) {
-    use crate::op_code::{
-      Arithmetic::{
-        Add,
-        Divide,
-        Multiply,
-        Negate,
-        Subtract,
-      },
-      ControlFlow::Return,
-      OpCode,
-    };
+fn run(chunk: &Chunk) {
+  use crate::op_code::{
+    Arithmetic::{
+      Add,
+      Divide,
+      Multiply,
+      Negate,
+      Subtract,
+    },
+    ControlFlow::Return,
+    OpCode,
+  };
 
-    for c in chunk.codes.iter() {
-      match c {
-        OpCode::Literal(l)  => { self.push(*l) }
-        OpCode::ControlFlow(c) => {
-          match c { Return => { self.pop(); } }
+  let mut stack = Stack::default();
+
+  for c in chunk.codes.iter() {
+    match c {
+      OpCode::Literal(l) => {
+        match l {
+          Value::Bool(b)   => stack.push(Value::Bool(*b)),
+          Value::Number(n) => stack.push(Value::Number(*n)),
+          Value::String(s) => stack.push(Value::String(s.clone())),
         }
-        OpCode::Arithmetic(a) => {
-          match a {
-            Negate => {
-              let value = -self.pop();
+      }
+      OpCode::ControlFlow(c) => {
+        match c { Return => { stack.pop(); } }
+      }
+      OpCode::Arithmetic(a) => {
+        match a {
+          Negate => {
+            match stack.pop() {
+              Some(Value::Bool(b))   => eprintln!("{b} is not a valid number; cannot Negate"),
+              Some(Value::Number(n)) => stack.push(Value::Number(-n)),
+              Some(Value::String(s)) => eprintln!("{s} is not a valid number; cannot Negate"),
 
-              self.push(value);
+              None => eprintln!("Stack empty; cannot Negate")
             }
-            Add => {
-              let rhs = self.pop();
-              let lhs = self.pop();
-
-              self.push(lhs + rhs);
+          }
+          Add => {
+            if let Some(Value::Number(rhs)) = stack.pop() &&
+               let Some(Value::Number(lhs)) = stack.pop()
+            { stack.push(Value::Number(lhs + rhs)) }
+            else {
+              eprintln!("Stack values are valid numbers; cannot Add")
             }
-            Divide => {
-              let rhs = self.pop();
-              let lhs = self.pop();
-
-              self.push(lhs / rhs);
+          }
+          Divide => {
+            if let Some(Value::Number(rhs)) = stack.pop() &&
+               let Some(Value::Number(lhs)) = stack.pop()
+            { stack.push(Value::Number(lhs / rhs)) }
+            else {
+              eprintln!("Stack values are valid numbers; cannot Divide")
             }
-            Multiply => {
-              let rhs = self.pop();
-              let lhs = self.pop();
-
-              self.push(lhs * rhs);
+          }
+          Multiply => {
+            if let Some(Value::Number(rhs)) = stack.pop() &&
+               let Some(Value::Number(lhs)) = stack.pop()
+            { stack.push(Value::Number(lhs * rhs)) }
+            else {
+              eprintln!("Stack values are valid numbers; cannot Multiply")
             }
-            Subtract => {
-              let rhs = self.pop();
-              let lhs = self.pop();
-
-              self.push(lhs - rhs);
+          }
+          Subtract => {
+            if let Some(Value::Number(rhs)) = stack.pop() &&
+               let Some(Value::Number(lhs)) = stack.pop()
+            { stack.push(Value::Number(lhs - rhs)) }
+            else {
+              eprintln!("Stack values are valid numbers; cannot Subtract")
             }
           }
         }
       }
     }
   }
+}
 
-  pub fn pop(&mut self) -> Value {
-    let new_top = self.stack_top - 1;
-    let out = self.stack[new_top as usize];
-
-    self.stack[new_top as usize] = 0.0;
-    self.stack_top = new_top;
-
+pub fn interpret(source: &str) {
+  if let Ok(chunk) = crate::compiler::execute(source) {
     #[cfg(feature = "debug")]
-    debug_pop(out, self.stack, self.stack_top);
+    println!("{chunk:#?}");
 
-    out
-  }
-
-  pub fn push(&mut self, value: Value) {
-    self.stack[self.stack_top as usize] = value.clone();
-    self.stack_top = self.stack_top + 1;
-
-    #[cfg(feature = "debug")]
-    debug_push(value, self.stack, self.stack_top);
+    run(&chunk);
   }
 }

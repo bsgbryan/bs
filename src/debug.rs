@@ -44,5 +44,5 @@ fn no_value(name: &str) {
 }
 
 fn single_value(name: &str, value: &Value) {
-  println!("{name}({value})");
+  println!("{name}({value:?})");
 }

@@ -44,9 +44,10 @@ mod validate {
         },
         op_code::OpCode,
         token::{
-          Literal::Number,
+          Literal::Number as NumberToken,
           Token,
         },
+        value::Value::Number,
       };
   
       #[test]
@@ -54,15 +55,15 @@ mod validate {
         use crate::op_code::Arithmetic::Add;
 
         let op = OpCode::Arithmetic(Add);
-  
+
         let value = "5".to_string();
-        let token = Token::Literal(Number(value));
-  
+        let token = Token::Literal(NumberToken(value));
+
         let mut chunk = Chunk::new();
-  
+
         expression(&op, &token, &mut chunk, &mut vec![].iter());
     
-        assert_eq!(chunk.codes[0], OpCode::Literal(5.0));
+        assert_eq!(chunk.codes[0], OpCode::Literal(Number(5.0)));
         assert_eq!(chunk.codes[1], op);
       }
   
@@ -71,15 +72,15 @@ mod validate {
         use crate::op_code::Arithmetic::Divide;
 
         let op = OpCode::Arithmetic(Divide);
-  
+
         let value = "5".to_string();
-        let token = Token::Literal(Number(value));
-  
+        let token = Token::Literal(NumberToken(value));
+
         let mut chunk = Chunk::new();
-  
+
         expression(&op, &token, &mut chunk, &mut vec![].iter());
-    
-        assert_eq!(chunk.codes[0], OpCode::Literal(5.0));
+
+        assert_eq!(chunk.codes[0], OpCode::Literal(Number(5.0)));
         assert_eq!(chunk.codes[1], op);
       }
   
@@ -88,15 +89,15 @@ mod validate {
         use crate::op_code::Arithmetic::Multiply;
 
         let op = OpCode::Arithmetic(Multiply);
-  
+
         let value = "5".to_string();
-        let token = Token::Literal(Number(value));
-  
+        let token = Token::Literal(NumberToken(value));
+
         let mut chunk = Chunk::new();
-  
+
         expression(&op, &token, &mut chunk, &mut vec![].iter());
-    
-        assert_eq!(chunk.codes[0], OpCode::Literal(5.0));
+
+        assert_eq!(chunk.codes[0], OpCode::Literal(Number(5.0)));
         assert_eq!(chunk.codes[1], op);
       }
     }
@@ -112,10 +113,11 @@ mod validate {
           OpCode,
         },
         token::{
-          Literal::Number,
+          Literal::Number  as NumberToken,
           Operator::Negate as NegateToken,
           Token,
         },
+        value::Value::Number,
       };
   
       #[test]
@@ -125,13 +127,13 @@ mod validate {
         let     op    = OpCode::Arithmetic(Add);
         let     token = Token::Operator(NegateToken);
         let mut chunk = Chunk::new();
-  
+
         let value = "5".to_string();
-        let num   = vec![Token::Literal(Number(value))];
-  
+        let num   = vec![Token::Literal(NumberToken(value))];
+
         expression(&op, &token, &mut chunk, &mut num.iter());
-    
-        assert_eq!(chunk.codes[0], OpCode::Literal(5.0));
+
+        assert_eq!(chunk.codes[0], OpCode::Literal(Number(5.0)));
         assert_eq!(chunk.codes[1], OpCode::Arithmetic(Negate));
         assert_eq!(chunk.codes[2], op);
       }
@@ -143,13 +145,13 @@ mod validate {
         let     op    = OpCode::Arithmetic(Divide);
         let     token = Token::Operator(NegateToken);
         let mut chunk = Chunk::new();
-  
+
         let value = "5".to_string();
-        let num   = vec![Token::Literal(Number(value))];
-  
+        let num   = vec![Token::Literal(NumberToken(value))];
+
         expression(&op, &token, &mut chunk, &mut num.iter());
-    
-        assert_eq!(chunk.codes[0], OpCode::Literal(5.0));
+
+        assert_eq!(chunk.codes[0], OpCode::Literal(Number(5.0)));
         assert_eq!(chunk.codes[1], OpCode::Arithmetic(Negate));
         assert_eq!(chunk.codes[2], op);
       }
@@ -161,13 +163,13 @@ mod validate {
         let     token = Token::Operator(NegateToken);
         let     op    = OpCode::Arithmetic(Multiply);
         let mut chunk = Chunk::new();
-  
+
         let value = "5".to_string();
-        let num   = vec![Token::Literal(Number(value))];
-  
+        let num   = vec![Token::Literal(NumberToken(value))];
+
         expression(&op, &token, &mut chunk, &mut num.iter());
-    
-        assert_eq!(chunk.codes[0], OpCode::Literal(5.0));
+
+        assert_eq!(chunk.codes[0], OpCode::Literal(Number(5.0)));
         assert_eq!(chunk.codes[1], OpCode::Arithmetic(Negate));
         assert_eq!(chunk.codes[2], op);
       }
