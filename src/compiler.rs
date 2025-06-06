@@ -22,13 +22,13 @@ use      value::expression as value;
 pub fn execute(source: &str) -> Result<Chunk, Box<dyn Error>> {
   let mut chunk  = Chunk::new();
   let     tokens = scan(source);
-  let mut tokens = tokens.iter();
+  let mut iter   = tokens.iter();
 
-  #[cfg(feature = "debug")]
-  println!("TOKENS: {tokens:#?}");
+  #[cfg(feature = "trace")]
+  println!("{tokens}");
 
   loop {
-    if let Some(t) = tokens.next() {
+    if let Some(t) = iter.next() {
       match t {
         Token::Literal(l) => { let _ = value(&l, &mut chunk); },
         Token::Keyword(k) => {
@@ -42,28 +42,28 @@ pub fn execute(source: &str) -> Result<Chunk, Box<dyn Error>> {
         Token::Operator(o) => {
           match o {
             Operator::Add => {
-              if let Some(v) = tokens.next() {
+              if let Some(v) = iter.next() {
                 use crate::op_code::Arithmetic::Add;
 
-                arithmetic(&OpCode::Arithmetic(Add), &v, &mut chunk, &mut tokens);
+                arithmetic(&OpCode::Arithmetic(Add), &v, &mut chunk, &mut iter);
               }
             }
             Operator::Divide => {
-              if let Some(v) = tokens.next() {
+              if let Some(v) = iter.next() {
                 use crate::op_code::Arithmetic::Divide;
 
-                arithmetic(&OpCode::Arithmetic(Divide), &v, &mut chunk, &mut tokens);
+                arithmetic(&OpCode::Arithmetic(Divide), &v, &mut chunk, &mut iter);
               }
             }
             Operator::Multiply => {
-              if let Some(v) = tokens.next() {
+              if let Some(v) = iter.next() {
                 use crate::op_code::Arithmetic::Multiply;
 
-                arithmetic(&OpCode::Arithmetic(Multiply), &v, &mut chunk, &mut tokens);
+                arithmetic(&OpCode::Arithmetic(Multiply), &v, &mut chunk, &mut iter);
               }
             }
             Operator::Negate => {
-              if let Some(v) = tokens.next() {
+              if let Some(v) = iter.next() {
                 let _ = negate(v, &mut chunk);
 
                 let code_count = chunk.codes.iter().count();
@@ -99,7 +99,7 @@ mod validate {
         compiler::execute as compile,
         op_code::OpCode,
       };
-  
+
       #[test]
       fn codes() {
         use crate::value::Value::Number;
@@ -118,7 +118,7 @@ mod validate {
         compiler::execute as compile,
         op_code::OpCode,
       };
-  
+
       #[test]
       fn codes() {
         use crate::op_code::ControlFlow::Return;
@@ -137,7 +137,7 @@ mod validate {
         compiler::execute as compile,
         op_code::OpCode,
       };
-  
+
       #[test]
       fn codes() {
         match compile("4+5") {
@@ -161,7 +161,7 @@ mod validate {
         compiler::execute as compile,
         op_code::OpCode,
       };
-  
+
       #[test]
       fn codes() {
         match compile("4/5") {
@@ -185,7 +185,7 @@ mod validate {
         compiler::execute as compile,
         op_code::OpCode,
       };
-  
+
       #[test]
       fn codes() {
         match compile("4*5") {
@@ -209,7 +209,7 @@ mod validate {
         compiler::execute as compile,
         op_code::OpCode,
       };
-  
+
       #[test]
       fn codes() {
         match compile("-5") {
@@ -232,7 +232,7 @@ mod validate {
         compiler::execute as compile,
         op_code::OpCode,
       };
-  
+
       #[test]
       fn codes() {
         match compile("4-5") {

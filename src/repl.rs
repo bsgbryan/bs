@@ -11,18 +11,17 @@ pub fn execute() -> std::io::Result<()> {
   let mut term = Term::stdout();
 
   term.write_line("🍻 shift + return to execute, command + c to exit")?;
-  
+
   let mut chars = vec![String::new()];
   let mut line  = 0;
 
   loop {
     if let Ok(key) = term.read_key() {
       match key {
-
         // Execute code
         Key::End => {
           term.write_line("\nExecuting!")?;
-          
+
           let source = chars.join("\n");
 
           interpret(&source);

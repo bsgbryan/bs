@@ -5,7 +5,7 @@ edition = "2024"
 resolver = "2"
 
 [features]
-debug = []
+trace = []
 
 [dependencies]
 console = "0.15.11"

@@ -1,15 +1,15 @@
 use unicode_segmentation::UnicodeSegmentation;
 
-use crate::token::Token;
+use crate::tokens::Tokens;
 
 mod lexeme;
 
 use lexeme::process;
 
-pub fn scan(line: &str) -> Vec<Token> {
+pub fn scan(line: &str) -> Tokens {
   let     split   = line.split_word_bounds().collect::<Vec<&str>>();
   let mut lexemes = split.iter();
-  let mut tokens  = vec![];
+  let mut tokens  = Tokens::default();
 
   loop {
     if let Some(&lexeme) = lexemes.next() {

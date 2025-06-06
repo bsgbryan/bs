@@ -1,42 +1,7 @@
-#[cfg(feature = "debug")]
-use std::fmt::Debug;
-
 use crate::{
   chunk::Chunk,
   value::Value,
 };
-
-#[cfg(feature = "debug")]
-fn debug_stack<T>(stack: &Vec<T>) where T: Debug {
-  print!("🥞::[");
-
-  let top = stack.iter().count();
-
-  let mut i = 0;
-
-  for s in stack {
-    if i < top {
-      if i < top {
-        if i > 0 { print!(","); }
-
-        print!("{s:?}");
-      }
-    }
-    else { break }
-    i += 1;
-  }
-  println!("]");
-}
-
-#[cfg(feature = "debug")]
-fn debug_push(value: &Value) {
-  println!("🥞 + {value:?}");
-}
-
-#[cfg(feature = "debug")]
-fn debug_pop(value: &Value) {
-  println!("🥞 - {value:?}");
-}
 
 struct Stack<T> {
   entries: Vec<T>,
@@ -50,29 +15,43 @@ impl<T> Default for Stack<T> {
 
 impl Stack<Value> {
   pub fn push(&mut self, value: Value) {
-    #[cfg(feature = "debug")] {
-      debug_stack(&self.entries);
-      debug_push(&value);
+    #[cfg(feature = "trace")] {
+      use crate::trace::{
+      stack,
+      stack_push,
+      };
+
+      stack(&self.entries);
+      stack_push(&value);
     }
 
     self.entries.push(value);
 
-    #[cfg(feature = "debug")] {
-      debug_stack(&self.entries);
+    #[cfg(feature = "trace")] {
+    	use crate::trace::stack;
+      stack(&self.entries);
       println!();
     }
   }
 
   pub fn pop(&mut self) -> Option<Value> {
-    #[cfg(feature = "debug")]
-    debug_stack(&self.entries);
+    #[cfg(feature = "trace")] {
+    	use crate::trace::stack;
+
+    	stack(&self.entries);
+    }
 
     let out = self.entries.pop();
 
-    #[cfg(feature = "debug")] {
+    #[cfg(feature = "trace")] {
       if let Some(ref o) = out {
-        debug_pop(&o);
-        debug_stack(&self.entries);
+	      use crate::trace::{
+					stack,
+					stack_pop,
+				};
+
+        stack_pop(&o);
+        stack(&self.entries);
         println!();
       }
       else { eprintln!("Attempted to pop, but nothing on stack") }
@@ -100,6 +79,9 @@ fn run(chunk: &Chunk) {
   for c in chunk.codes.iter() {
     match c {
       OpCode::Literal(l) => {
+      	#[cfg(feature = "trace")]
+      	println!("🤖::literal({l})");
+
         match l {
           Value::Bool(b)   => stack.push(Value::Bool(*b)),
           Value::Number(n) => stack.push(Value::Number(*n)),
@@ -107,9 +89,15 @@ fn run(chunk: &Chunk) {
         }
       }
       OpCode::ControlFlow(c) => {
+	      #[cfg(feature = "trace")]
+	     	println!("🤖::{c}");
+
         match c { Return => { stack.pop(); } }
       }
       OpCode::Arithmetic(a) => {
+	     	#[cfg(feature = "trace")]
+	     	println!("🤖::{a}");
+
         match a {
           Negate => {
             match stack.pop() {
@@ -160,8 +148,8 @@ fn run(chunk: &Chunk) {
 
 pub fn interpret(source: &str) {
   if let Ok(chunk) = crate::compiler::execute(source) {
-    #[cfg(feature = "debug")]
-    println!("{chunk:#?}");
+    #[cfg(feature = "trace")]
+    println!("{chunk}");
 
     run(&chunk);
   }

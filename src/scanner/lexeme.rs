@@ -40,7 +40,7 @@ pub fn process<'a>(
     "/" => { out.push(Token::Operator(Operator::Divide)); },
     "*" => { out.push(Token::Operator(Operator::Multiply)); },
     "-" => { out.push(Token::Operator(Operator::Negate)); },
-    "!" => { out.push(Token::Operator(Operator::Not)); },
+    "!" => { out.push(Token::Operator(Operator::Invert)); },
 
     ":"    => { out.push(Token::Scope(Scope::Colon)); },
     ","    => { out.push(Token::Scope(Scope::Comma)); },

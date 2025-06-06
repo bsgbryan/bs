@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use crate::{
   chunk::Chunk,
   op_code::OpCode,
@@ -44,5 +46,34 @@ fn no_value(name: &str) {
 }
 
 fn single_value(name: &str, value: &Value) {
-  println!("{name}({value:?})");
+  println!("{name}({value})");
+}
+
+pub fn stack<T>(stack: &Vec<T>) where T: Debug {
+  print!("🥞::[");
+
+  let top = stack.iter().count();
+
+  let mut i = 0;
+
+  for s in stack {
+    if i < top {
+      if i < top {
+        if i > 0 { print!(","); }
+
+        print!("{s:?}");
+      }
+    }
+    else { break }
+    i += 1;
+  }
+  println!("]");
+}
+
+pub fn stack_push(value: &Value) {
+	println!("🥞 + {value}");
+}
+
+pub fn stack_pop(value: &Value) {
+  println!("🥞 - {value}");
 }

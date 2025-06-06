@@ -95,7 +95,6 @@ pub fn for_token(token: &Token) -> u8 {
         Invert,
         Multiply,
         Negate,
-        Not,
       };
 
       match o {
@@ -105,7 +104,6 @@ pub fn for_token(token: &Token) -> u8 {
         Invert   => UNARY,
         Multiply => FACTOR,
         Negate   => UNARY,
-        Not      => UNARY,
       }
     }
     Token::Scope(s) => {
