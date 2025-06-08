@@ -6,24 +6,29 @@ mod lexeme;
 
 use lexeme::process;
 
-pub fn scan(line: &str) -> Tokens {
-  let     split   = line.split_word_bounds().collect::<Vec<&str>>();
-  let mut lexemes = split.iter();
-  let mut tokens  = Tokens::default();
+pub fn scan(source: &str) -> Tokens {
+  let mut tokens = Tokens::default();
+  let mut num 	 = 1;
 
-  loop {
-    if let Some(&lexeme) = lexemes.next() {
-      if lexeme == "\n" { continue; }
-      if let Some(first) = lexeme.chars().nth(0) {
-        if first.is_whitespace() { continue; }
-      }
+	for line in source.split_terminator("\n") {
+	  let     lexemes = line.split_word_bound_indices().collect::<Vec<(usize, &str)>>();
+	  let mut lexemes = lexemes.iter();
 
-      for token in process(lexeme, &mut lexemes) {
-        tokens.push(token);
-      }
-    }
-    else { break; }
-  }
+	  loop {
+	    if let Some((column, lexeme)) = lexemes.next() {
+	      if let Some(first) = lexeme.chars().nth(0) {
+	        if first.is_whitespace() { continue; }
+	      }
+
+	      for (c, token) in process(lexeme, &mut lexemes, *column as u64) {
+					tokens.push(token, num, c);
+	      }
+	    }
+	    else { break; }
+	  }
+
+		num += 1;
+	}
 
   tokens
 }

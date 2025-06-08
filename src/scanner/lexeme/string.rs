@@ -7,19 +7,20 @@ use crate::token::{
 
 pub fn process<'a>(
   lexeme: &    str,
-  iter:   &mut Iter<'a, &str>,
-) -> Option<Token> {
+  iter:   &mut Iter<'a, (usize, &str)>,
+  column: u64,
+) -> Option<(u64, Token)> {
   if lexeme == "\"" {
     let mut value = String::new();
 
     loop {
-      if let Some(&v) = iter.next() {
-        if v != "\"" { value += v; }
-        else         { break;      }
+      if let Some((_, v)) = iter.next() {
+        if *v != "\"" { value += v; }
+        else         	{ break;      }
       }
     }
 
-    Some(Token::Literal(BSString(value)))
+    Some((column, Token::Literal(BSString(value))))
   }
   else { None }
 }
@@ -32,15 +33,15 @@ mod validate {
   fn output() {
     use crate::token::Literal::String;
 
-    let     value = vec!["\"", "Hello,", " ", "World!", "\""];
+    let     value = vec![(0, "\""), (1, "Hello"), (6, ","), (7, " "), (8, "World"), (13, "!"), (14, "\"")];
     let mut iter  = value.iter();
-    
-    if let Some(lexeme) = iter.next() {
-      if let Some(output) = super::process(lexeme, &mut iter) {
+
+    if let Some((column, lexeme)) = iter.next() {
+      if let Some(output) = super::process(lexeme, &mut iter, *column as u64) {
         let value    = "Hello, World!".to_string();
         let greeting = String(value);
 
-        assert_eq!(output, Token::Literal(greeting));
+        assert_eq!(output, (0, Token::Literal(greeting)));
       }
       else { panic!("Expected output, not None") }
     }

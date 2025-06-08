@@ -18,16 +18,18 @@ pub fn expression<'a>(
   token: &    Token,
   chunk: &mut Chunk,
   iter:  &mut Iter<'a, Token>,
+  line:	  u64,
+  column: u64,
 ) {
-  match token {
+	match token {
     Token::Operator(o) => match o {
       Operator::Negate => if let Some(v) = iter.next() {
-        negate(v, chunk);
+        negate(v, chunk, line, column);
       }
-      _ => panic!("Invalid variant({op:?}) for Operator({o:?})")
+      _ => panic!("line {line}, column {column}: Invalid variant({op:?}) for Operator({o:?})")
     }
     Token::Literal(l) => { value(l, chunk); }
-    _ => panic!("Invalid Token({token:?}) for OpCode({op:?})")
+    _ => panic!("line {line}, column {column}: Invalid Token({token:?}) for OpCode({op:?})")
   };
 
   chunk.append(op);
@@ -49,7 +51,7 @@ mod validate {
         },
         value::Value::Number,
       };
-  
+
       #[test]
       fn add() {
         use crate::op_code::Arithmetic::Add;
@@ -61,12 +63,12 @@ mod validate {
 
         let mut chunk = Chunk::new();
 
-        expression(&op, &token, &mut chunk, &mut vec![].iter());
-    
+        expression(&op, &token, &mut chunk, &mut vec![].iter(), 0, 0);
+
         assert_eq!(chunk.codes[0], OpCode::Literal(Number(5.0)));
         assert_eq!(chunk.codes[1], op);
       }
-  
+
       #[test]
       fn divide() {
         use crate::op_code::Arithmetic::Divide;
@@ -78,12 +80,12 @@ mod validate {
 
         let mut chunk = Chunk::new();
 
-        expression(&op, &token, &mut chunk, &mut vec![].iter());
+        expression(&op, &token, &mut chunk, &mut vec![].iter(), 0, 0);
 
         assert_eq!(chunk.codes[0], OpCode::Literal(Number(5.0)));
         assert_eq!(chunk.codes[1], op);
       }
-  
+
       #[test]
       fn multiply() {
         use crate::op_code::Arithmetic::Multiply;
@@ -95,13 +97,13 @@ mod validate {
 
         let mut chunk = Chunk::new();
 
-        expression(&op, &token, &mut chunk, &mut vec![].iter());
+        expression(&op, &token, &mut chunk, &mut vec![].iter(), 0, 0);
 
         assert_eq!(chunk.codes[0], OpCode::Literal(Number(5.0)));
         assert_eq!(chunk.codes[1], op);
       }
     }
-  
+
     mod with_negation {
       use crate::{
         compiler::{
@@ -119,7 +121,7 @@ mod validate {
         },
         value::Value::Number,
       };
-  
+
       #[test]
       fn add() {
         use crate::op_code::Arithmetic::Add;
@@ -131,13 +133,13 @@ mod validate {
         let value = "5".to_string();
         let num   = vec![Token::Literal(NumberToken(value))];
 
-        expression(&op, &token, &mut chunk, &mut num.iter());
+        expression(&op, &token, &mut chunk, &mut num.iter(), 0, 0);
 
         assert_eq!(chunk.codes[0], OpCode::Literal(Number(5.0)));
         assert_eq!(chunk.codes[1], OpCode::Arithmetic(Negate));
         assert_eq!(chunk.codes[2], op);
       }
-  
+
       #[test]
       fn divide() {
         use crate::op_code::Arithmetic::Divide;
@@ -149,13 +151,13 @@ mod validate {
         let value = "5".to_string();
         let num   = vec![Token::Literal(NumberToken(value))];
 
-        expression(&op, &token, &mut chunk, &mut num.iter());
+        expression(&op, &token, &mut chunk, &mut num.iter(), 0, 0);
 
         assert_eq!(chunk.codes[0], OpCode::Literal(Number(5.0)));
         assert_eq!(chunk.codes[1], OpCode::Arithmetic(Negate));
         assert_eq!(chunk.codes[2], op);
       }
-  
+
       #[test]
       fn multiply() {
         use crate::op_code::Arithmetic::Multiply;
@@ -167,7 +169,7 @@ mod validate {
         let value = "5".to_string();
         let num   = vec![Token::Literal(NumberToken(value))];
 
-        expression(&op, &token, &mut chunk, &mut num.iter());
+        expression(&op, &token, &mut chunk, &mut num.iter(), 0, 0);
 
         assert_eq!(chunk.codes[0], OpCode::Literal(Number(5.0)));
         assert_eq!(chunk.codes[1], OpCode::Arithmetic(Negate));

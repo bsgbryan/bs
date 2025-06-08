@@ -4,17 +4,18 @@ use crate::token::Token;
 
 pub fn process<'a>(
   lexeme: &    str,
-  iter:   &mut Iter<'a, &str>,
-) -> Vec<Token> {
+  iter:   &mut Iter<'a, (usize, &str)>,
+  column: u64,
+) -> Vec<(u64, Token)> {
   match lexeme {
     "=" => {
-      if let Some(&n) = iter.next() {
-        if n == "=" {
+      if let Some((c, n)) = iter.next() {
+        if *n == "=" {
           use crate::token::Equality::Equal;
 
           let mut out = Vec::with_capacity(1);
 
-          out.push(Token::Equality(Equal));
+          out.push((column, Token::Equality(Equal)));
 
           return out
         }
@@ -23,9 +24,9 @@ pub fn process<'a>(
           use crate::token::Operator::Assign;
 
           let mut out = Vec::with_capacity(2);
-          
-          out.push(Token::Operator(Assign));
-          out.append(&mut super::process(n, iter));
+
+          out.push((column, Token::Operator(Assign)));
+          out.append(&mut super::process(n, iter, *c as u64));
 
           return out
         }
@@ -33,13 +34,13 @@ pub fn process<'a>(
       else { return Vec::with_capacity(0) }
     }
     ">" => {
-      if let Some(&n) = iter.next() {
-        if n == "=" {
+      if let Some((c, n)) = iter.next() {
+        if *n == "=" {
           use crate::token::Equality::GreaterOrEqual;
 
           let mut out = Vec::with_capacity(1);
 
-          out.push(Token::Equality(GreaterOrEqual));
+          out.push((column, Token::Equality(GreaterOrEqual)));
 
           return out
         }
@@ -48,8 +49,8 @@ pub fn process<'a>(
 
           let mut out = Vec::with_capacity(2);
 
-          out.push(Token::Equality(Greater));
-          out.append(&mut super::process(n, iter));
+          out.push((column, Token::Equality(Greater)));
+          out.append(&mut super::process(n, iter, *c as u64));
 
           return out
         }
@@ -57,13 +58,13 @@ pub fn process<'a>(
       else { return Vec::with_capacity(0) }
     }
     "<" => {
-      if let Some(&n) = iter.next() {
-        if n == "=" {
+      if let Some((c, n)) = iter.next() {
+        if *n == "=" {
           use crate::token::Equality::LessOrEqual;
 
           let mut out = Vec::with_capacity(1);
 
-          out.push(Token::Equality(LessOrEqual));
+          out.push((column, Token::Equality(LessOrEqual)));
 
           return out
         }
@@ -72,8 +73,8 @@ pub fn process<'a>(
 
           let mut out = Vec::with_capacity(2);
 
-          out.push(Token::Equality(Less));
-          out.append(&mut super::process(n, iter));
+          out.push((column, Token::Equality(Less)));
+          out.append(&mut super::process(n, iter, *c as u64));
 
           return out
         }
@@ -81,13 +82,13 @@ pub fn process<'a>(
       else { return Vec::with_capacity(0) }
     }
     "!" => {
-      if let Some(&n) = iter.next() {
-        if n == "=" {
+      if let Some((c, n)) = iter.next() {
+        if *n == "=" {
           use crate::token::Equality::NotEqual;
 
           let mut out = Vec::with_capacity(1);
 
-          out.push(Token::Equality(NotEqual));
+          out.push((column, Token::Equality(NotEqual)));
 
           return out
         }
@@ -100,16 +101,16 @@ pub fn process<'a>(
             Operator::Invert,
           };
 
-          let tokens = super::process(n, iter);
-          
-          if tokens[0] == Token::Keyword(False) ||
-             tokens[0] == Token::Keyword(True)
+          let mut tokens = super::process(n, iter, *c as u64);
+
+          if tokens[0].1 == Token::Keyword(False) ||
+             tokens[0].1 == Token::Keyword(True)
           {
             let mut out = Vec::with_capacity(2);
 
-            out.append(&mut super::process(n, iter));
-            out.push(Token::Operator(Invert));
-  
+            out.append(&mut tokens);
+            out.push((column, Token::Operator(Invert)));
+
             return out
           }
           else { return Vec::with_capacity(0) }
@@ -129,16 +130,16 @@ mod validate {
   fn assign() {
     use crate::token::Operator::Assign;
 
-    let     lexemes = vec!["=", "4"];
+    let     lexemes = vec![(0, "="), (1, "4")];
     let mut iter    = lexemes.iter();
-    
-    if let Some(token) = iter.next() {
-      let tokens = super::process(token, &mut iter);
+
+    if let Some((column, token)) = iter.next() {
+      let tokens = super::process(token, &mut iter, *column as u64);
 
       assert_eq!(tokens.iter().count(), 2);
 
       if let Some(t) = tokens.iter().next() {
-        assert_eq!(*t, Token::Operator(Assign));
+        assert_eq!(*t, (0, Token::Operator(Assign)));
       }
       else { panic!("Expected a Token, got None"); }
     }
@@ -148,16 +149,16 @@ mod validate {
   fn equal() {
     use crate::token::Equality::Equal;
 
-    let     lexemes = vec!["=", "="];
+    let     lexemes = vec![(0, "="), (1, "=")];
     let mut iter    = lexemes.iter();
-    
-    if let Some(token) = iter.next() {
-      let tokens = super::process(token, &mut iter);
+
+    if let Some((column, token)) = iter.next() {
+      let tokens = super::process(token, &mut iter, *column as u64);
 
       assert_eq!(tokens.iter().count(), 1);
 
       if let Some(t) = tokens.iter().next() {
-        assert_eq!(*t, Token::Equality(Equal));
+        assert_eq!(*t, (0, Token::Equality(Equal)));
       }
       else { panic!("Expected a Token, got None"); }
     }
@@ -170,11 +171,11 @@ mod validate {
       Literal::Number,
     };
 
-    let     lexemes = vec![">", "2"];
+    let     lexemes = vec![(0, ">"), (1, "2")];
     let mut iter    = lexemes.iter();
-    
-    if let Some(token) = iter.next() {
-      let     tokens = super::process(token, &mut iter);
+
+    if let Some((column, token)) = iter.next() {
+      let     tokens = super::process(token, &mut iter, *column as u64);
       let mut tokens = tokens.iter();
 
       assert_eq!(tokens.clone().count(), 2);
@@ -183,13 +184,13 @@ mod validate {
       let second = tokens.next();
 
       if let Some(t) = first {
-        assert_eq!(*t, Token::Equality(Greater));
+        assert_eq!(*t, (0, Token::Equality(Greater)));
       }
       else { panic!("Expected a Token, got None"); }
 
       if let Some(t) = second {
         let value = "2".to_string();
-        assert_eq!(*t, Token::Literal(Number(value)));
+        assert_eq!(*t, (1, Token::Literal(Number(value))));
       }
       else { panic!("Expected a Token, got None"); }
     }
@@ -199,16 +200,16 @@ mod validate {
   fn greater_or_equal() {
     use crate::token::Equality::GreaterOrEqual;
 
-    let     lexemes = vec![">", "="];
+    let     lexemes = vec![(0, ">"), (1, "=")];
     let mut iter    = lexemes.iter();
-    
-    if let Some(token) = iter.next() {
-      let tokens = super::process(token, &mut iter);
+
+    if let Some((column, token)) = iter.next() {
+      let tokens = super::process(token, &mut iter, *column as u64);
 
       assert_eq!(tokens.iter().count(), 1);
 
       if let Some(t) = tokens.iter().next() {
-        assert_eq!(*t, Token::Equality(GreaterOrEqual));
+        assert_eq!(*t, (0, Token::Equality(GreaterOrEqual)));
       }
       else { panic!("Expected a Token, got None"); }
     }
@@ -221,11 +222,11 @@ mod validate {
       Keyword::False,
     };
 
-    let     lexemes = vec!["!", "false"];
+    let     lexemes = vec![(0, "!"), (1, "false")];
     let mut iter    = lexemes.iter();
-    
-    if let Some(token) = iter.next() {
-      let     tokens = super::process(token, &mut iter);
+
+    if let Some((column, token)) = iter.next() {
+      let     tokens = super::process(token, &mut iter, *column as u64);
       let mut tokens = tokens.iter();
 
       assert_eq!(tokens.clone().count(), 2);
@@ -234,12 +235,12 @@ mod validate {
       let second = tokens.next();
 
       if let Some(t) = first {
-        assert_eq!(*t, Token::Keyword(False));
+        assert_eq!(*t, (1, Token::Keyword(False)));
       }
       else { panic!("Expected a Token, got None"); }
 
       if let Some(t) = second {
-        assert_eq!(*t, Token::Operator(Invert));
+        assert_eq!(*t, (0, Token::Operator(Invert)));
       }
       else { panic!("Expected a Token, got None"); }
     }
@@ -252,11 +253,11 @@ mod validate {
       Literal::Number,
     };
 
-    let     lexemes = vec!["<", "2"];
+    let     lexemes = vec![(0, "<"), (1, "2")];
     let mut iter    = lexemes.iter();
-    
-    if let Some(token) = iter.next() {
-      let     tokens = super::process(token, &mut iter);
+
+    if let Some((column, token)) = iter.next() {
+      let     tokens = super::process(token, &mut iter, *column as u64);
       let mut tokens = tokens.iter();
 
       assert_eq!(tokens.clone().count(), 2);
@@ -265,13 +266,13 @@ mod validate {
       let second = tokens.next();
 
       if let Some(t) = first {
-        assert_eq!(*t, Token::Equality(Less));
+        assert_eq!(*t, (0, Token::Equality(Less)));
       }
       else { panic!("Expected a Token, got None"); }
 
       if let Some(t) = second {
         let value = "2".to_string();
-        assert_eq!(*t, Token::Literal(Number(value)));
+        assert_eq!(*t, (1, Token::Literal(Number(value))));
       }
       else { panic!("Expected a Token, got None"); }
     }
@@ -281,16 +282,16 @@ mod validate {
   fn less_or_equal() {
     use crate::token::Equality::LessOrEqual;
 
-    let     lexemes = vec!["<", "="];
+    let     lexemes = vec![(0, "<"), (1, "=")];
     let mut iter    = lexemes.iter();
-    
-    if let Some(token) = iter.next() {
-      let tokens = super::process(token, &mut iter);
+
+    if let Some((column, token)) = iter.next() {
+      let tokens = super::process(token, &mut iter, *column as u64);
 
       assert_eq!(tokens.iter().count(), 1);
 
       if let Some(t) = tokens.iter().next() {
-        assert_eq!(*t, Token::Equality(LessOrEqual));
+        assert_eq!(*t, (0, Token::Equality(LessOrEqual)));
       }
       else { panic!("Expected a Token, got None"); }
     }
@@ -300,16 +301,16 @@ mod validate {
   fn not_equal() {
     use crate::token::Equality::NotEqual;
 
-    let     lexemes = vec!["!", "="];
+    let     lexemes = vec![(0, "!"), (1, "=")];
     let mut iter    = lexemes.iter();
-    
-    if let Some(token) = iter.next() {
-      let tokens = super::process(token, &mut iter);
+
+    if let Some((column, token)) = iter.next() {
+      let tokens = super::process(token, &mut iter, *column as u64);
 
       assert_eq!(tokens.iter().count(), 1);
 
       if let Some(t) = tokens.iter().next() {
-        assert_eq!(*t, Token::Equality(NotEqual));
+        assert_eq!(*t, (0, Token::Equality(NotEqual)));
       }
       else { panic!("Expected a Token, got None"); }
     }

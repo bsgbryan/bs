@@ -27,11 +27,21 @@ pub fn execute(source: &str) -> Result<Chunk, Box<dyn Error>> {
   #[cfg(feature = "trace")]
   println!("{tokens}");
 
+  let mut item = 0;
+
   loop {
     if let Some(t) = iter.next() {
+    	let (line, column) = tokens.meta(item);
+
       match t {
-        Token::Literal(l) => { let _ = value(&l, &mut chunk); },
+        Token::Literal(l) => {
+          item += 1;
+
+        	let _ = value(&l, &mut chunk);
+        },
         Token::Keyword(k) => {
+          item += 1;
+
           use crate::op_code::ControlFlow::Return;
 
           match k {
@@ -40,31 +50,41 @@ pub fn execute(source: &str) -> Result<Chunk, Box<dyn Error>> {
           }
         }
         Token::Operator(o) => {
+	        item += 1;
+
           match o {
             Operator::Add => {
               if let Some(v) = iter.next() {
+	              item += 1;
+
                 use crate::op_code::Arithmetic::Add;
 
-                arithmetic(&OpCode::Arithmetic(Add), &v, &mut chunk, &mut iter);
+                arithmetic(&OpCode::Arithmetic(Add), &v, &mut chunk, &mut iter, *line, *column);
               }
             }
             Operator::Divide => {
               if let Some(v) = iter.next() {
+	              item += 1;
+
                 use crate::op_code::Arithmetic::Divide;
 
-                arithmetic(&OpCode::Arithmetic(Divide), &v, &mut chunk, &mut iter);
+                arithmetic(&OpCode::Arithmetic(Divide), &v, &mut chunk, &mut iter, *line, *column);
               }
             }
             Operator::Multiply => {
               if let Some(v) = iter.next() {
+              	item += 1;
+
                 use crate::op_code::Arithmetic::Multiply;
 
-                arithmetic(&OpCode::Arithmetic(Multiply), &v, &mut chunk, &mut iter);
+                arithmetic(&OpCode::Arithmetic(Multiply), &v, &mut chunk, &mut iter, *line, *column);
               }
             }
             Operator::Negate => {
               if let Some(v) = iter.next() {
-                let _ = negate(v, &mut chunk);
+	              item += 1;
+
+                let _ = negate(v, &mut chunk, *line, *column);
 
                 let code_count = chunk.codes.iter().count();
 

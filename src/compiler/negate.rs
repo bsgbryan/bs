@@ -9,10 +9,15 @@ use super::value::expression as value;
 pub fn expression(
   token: &    Token,
   chunk: &mut Chunk,
+  line:	  u64,
+  column: u64,
 ) {
-  match token {
+	match token {
     Token::Literal(l) => { value(l, chunk) }
-    _ => (/* TODO Implement error reporting here */)
+    _ => {
+	   	let c = column + 1;
+	    panic!("line {line}, column {c}: {token} cannot be negated");
+    }
   }
 
   use crate::op_code::Arithmetic::Negate;
@@ -43,7 +48,7 @@ mod validate {
 
       let mut chunk = Chunk::new();
 
-      expression(&token, &mut chunk);
+      expression(&token, &mut chunk, 0, 0);
 
       assert_eq!(chunk.codes[0], OpCode::Literal(Number(5.0)));
 
