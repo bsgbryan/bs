@@ -171,8 +171,8 @@ fn run(chunk: &Chunk) {
           }
         }
 
-        if let Some(Value::Number(rhs)) = stack.pop() &&
-           let Some(Value::Number(lhs)) = stack.pop()
+        if let Some(rhs) = stack.pop() &&
+           let Some(lhs) = stack.pop()
         {
           let result = match e {
             Equal          => Value::Bool(lhs == rhs),
