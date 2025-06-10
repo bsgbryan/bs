@@ -57,21 +57,7 @@ fn advance(
 	let mut processed = 0;
 
   match token {
-    Token::Literal(l) => {
-      value(&l, chunk);
-
-      if let Some(p) = tokens.peek(column + 1) {
-	     	match p {
-		      Token::Operator(_) => {
-						if let Some(t) = iter.next() {
-							processed += 1;
-							processed += advance(t, chunk, iter, tokens, line, column + processed);
-						}
-					}
-					_ => ()
-	      }
-      }
-    },
+    Token::Literal(l) => { value(&l, chunk); },
     Token::Keyword(k) => {
       use crate::op_code::ControlFlow::Return;
 
@@ -84,36 +70,36 @@ fn advance(
 	    match o {
         Operator::Add => {
           if let Some(v) = iter.next() {
-        		processed += 1;
+        		processed = 1;
 
             use crate::op_code::Arithmetic::Add;
 
-            arithmetic(OpCode::Arithmetic(Add), &v, chunk, iter, line, column + processed);
+            arithmetic(OpCode::Arithmetic(Add), &v, chunk, iter, line, column + 1);
           }
         }
         Operator::Divide => {
           if let Some(v) = iter.next() {
-	          processed += 1;
+	          processed = 1;
 
             use crate::op_code::Arithmetic::Divide;
 
-            arithmetic(OpCode::Arithmetic(Divide), &v, chunk, iter, line, column + processed);
+            arithmetic(OpCode::Arithmetic(Divide), &v, chunk, iter, line, column + 1);
           }
         }
         Operator::Multiply => {
           if let Some(v) = iter.next() {
-           	processed += 1;
+           	processed = 1;
 
             use crate::op_code::Arithmetic::Multiply;
 
-            arithmetic(OpCode::Arithmetic(Multiply), &v, chunk, iter, line, column + processed);
+            arithmetic(OpCode::Arithmetic(Multiply), &v, chunk, iter, line, column + 1);
           }
         }
         Operator::Negate => {
           if let Some(v) = iter.next() {
-	          processed += 1;
+	          processed = 1;
 
-            let _ = negate(v, chunk, line, column + processed);
+            negate(v, chunk, line, column + 1);
 
             let code_count = chunk.codes.iter().count();
 
