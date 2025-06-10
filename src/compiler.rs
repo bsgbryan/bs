@@ -282,16 +282,9 @@ mod validate {
           Err(e) => panic!("Source compilation failed: {e:#?}")
         }
       }
-    }
-
-    mod subtract {
-      use crate::{
-        compiler::execute as compile,
-        op_code::OpCode,
-      };
 
       #[test]
-      fn codes() {
+      fn simple_subtract() {
         match compile("4-5") {
           Ok(output) => {
             use crate::value::Value::Number;
@@ -306,6 +299,60 @@ mod validate {
 
             assert_eq!(output.codes[2], OpCode::Arithmetic(Negate));
             assert_eq!(output.codes[3], OpCode::Arithmetic(Add));
+          }
+          Err(e) => panic!("Source compilation failed: {e:#?}")
+        }
+      }
+
+      #[test]
+      fn compound_subtract() {
+				use crate::{
+	        compiler::execute as compile,
+	        op_code::{
+						Arithmetic::{
+							Add,
+							Negate,
+						},
+						OpCode,
+					},
+					value::Value::Number,
+	      };
+
+        match compile("2+3-5") {
+          Ok(output) => {
+            assert_eq!(output.codes[0], OpCode::Literal(Number(2.0)));
+						assert_eq!(output.codes[1], OpCode::Literal(Number(3.0)));
+						assert_eq!(output.codes[2], OpCode::Arithmetic(Add));
+						assert_eq!(output.codes[3], OpCode::Literal(Number(5.0)));
+						assert_eq!(output.codes[4], OpCode::Arithmetic(Negate));
+						assert_eq!(output.codes[5], OpCode::Arithmetic(Add));
+          }
+          Err(e) => panic!("Source compilation failed: {e:#?}")
+        }
+      }
+
+      #[test]
+      fn mid_expression() {
+				use crate::{
+	        compiler::execute as compile,
+	        op_code::{
+						Arithmetic::{
+							Add,
+							Negate,
+						},
+						OpCode,
+					},
+					value::Value::Number,
+	      };
+
+        match compile("2-5+3") {
+          Ok(output) => {
+            assert_eq!(output.codes[0], OpCode::Literal(Number(2.0)));
+						assert_eq!(output.codes[1], OpCode::Literal(Number(5.0)));
+						assert_eq!(output.codes[2], OpCode::Arithmetic(Negate));
+						assert_eq!(output.codes[3], OpCode::Arithmetic(Add));
+						assert_eq!(output.codes[4], OpCode::Literal(Number(3.0)));
+						assert_eq!(output.codes[5], OpCode::Arithmetic(Add));
           }
           Err(e) => panic!("Source compilation failed: {e:#?}")
         }
