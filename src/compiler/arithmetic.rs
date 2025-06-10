@@ -13,11 +13,11 @@ use crate::{
   },
 };
 
-pub fn expression<'a>(
+pub fn expression(
   op:    &OpCode,
   token: &    Token,
   chunk: &mut Chunk,
-  iter:  &mut Iter<'a, Token>,
+  iter:  &mut Iter<Token>,
   line:	  u64,
   column: u64,
 ) {
