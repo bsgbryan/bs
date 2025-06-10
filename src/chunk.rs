@@ -13,8 +13,8 @@ impl Chunk {
     }
   }
 
-  pub fn append(&mut self, code: &OpCode) {
-    self.codes.push(code.clone());
+  pub fn append(&mut self, code: OpCode) {
+    self.codes.push(code);
   }
 
   pub fn free(&mut self) {
@@ -31,6 +31,7 @@ impl Display for Chunk {
 				Arithmetic,
 				ControlFlow,
 				Literal,
+				Util,
 			};
 
 			match c {
@@ -69,6 +70,13 @@ impl Display for Chunk {
 						Bool(b) 	=> { let _ = writeln!(f, "\tLiteral: {}", 		b); }
 						Number(n) => { let _ = writeln!(f, "\tLiteral: {}", 		n); }
 						String(s) => { let _ = writeln!(f, "\tLiteral: \"{}\"", s); }
+					}
+				}
+				Util(u) => {
+					use crate::op_code::Util::Print;
+
+					match u {
+						Print => { let _ = writeln!(f, "\tprint"); }
 					}
 				}
 			}

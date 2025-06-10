@@ -22,13 +22,10 @@ pub fn instruction(op_code: &OpCode) {
       Subtract,
     },
     ControlFlow::Return,
+    Util::Print,
   };
 
   match op_code {
-    OpCode::Literal(l)     => { single_value("OP_LITERAL", l) }
-    OpCode::ControlFlow(c) => {
-      match c { Return => no_value("OP_RETURN") }
-    }
     OpCode::Arithmetic(a)  => {
       match a {
         Negate   => no_value("OP_NEGATE"  ),
@@ -37,6 +34,15 @@ pub fn instruction(op_code: &OpCode) {
         Multiply => no_value("OP_MULTIPLY"),
         Subtract => no_value("OP_SUBTRACT"),
       }
+    }
+    OpCode::ControlFlow(c) => {
+      match c { Return => no_value("OP_RETURN") }
+    }
+    OpCode::Literal(l) => { single_value("OP_LITERAL", l) }
+    OpCode::Util(u) => {
+	   	match u {
+		    Print => no_value("OP_PRINT"),
+	    }
     }
   }
 }

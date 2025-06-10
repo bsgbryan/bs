@@ -7,6 +7,7 @@ use crate::token::{
   Scope,
   Error,
   Token,
+  Util,
 };
 
 mod assign_equality_invert;
@@ -23,15 +24,15 @@ pub fn process<'a>(
   let mut out = Vec::with_capacity(1);
 
   match lexeme {
-    "and"    => { out.push((column, Token::Keyword(Keyword::And))); },
+    // "and"    => { out.push((column, Token::Keyword(Keyword::And))); },
     "const"  => { out.push((column, Token::Keyword(Keyword::Const))); },
     "else"   => { out.push((column, Token::Keyword(Keyword::Else))); },
     "false"  => { out.push((column, Token::Keyword(Keyword::False))); },
     "fun"    => { out.push((column, Token::Keyword(Keyword::Fun))); },
     "if"     => { out.push((column, Token::Keyword(Keyword::If))); },
     "loop"   => { out.push((column, Token::Keyword(Keyword::Loop))); },
-    "or"     => { out.push((column, Token::Keyword(Keyword::Or))); },
-    "print"  => { out.push((column, Token::Keyword(Keyword::Print))); },
+    // "or"     => { out.push((column, Token::Keyword(Keyword::Or))); },
+    "print"  => { out.push((column, Token::Util(Util::Print))); },
     "return" => { out.push((column, Token::Keyword(Keyword::Return))); },
     "true"   => { out.push((column, Token::Keyword(Keyword::True))); },
     "var"    => { out.push((column, Token::Keyword(Keyword::Var))); },

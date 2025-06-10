@@ -14,6 +14,13 @@ impl Default for Tokens {
 }
 
 impl Tokens {
+	pub fn peek(&self, index: u64) -> Option<&Token> {
+		if self.items.len() > index as usize {
+			Some(&self.items[index as usize])
+		}
+		else { None}
+	}
+
 	pub fn push(&mut self, token: Token, line: u64, column: u64) {
 		self.items.push(token);
 		self.meta.push((line, column));

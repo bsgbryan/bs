@@ -9,7 +9,7 @@ pub fn expression(token: &Literal, chunk: &mut Chunk) {
   match token {
     Literal::Number(n) =>
       if let Ok(value) = n.parse::<f64>() {
-        chunk.append(&OpCode::Literal(Number(value)));
+        chunk.append(OpCode::Literal(Number(value)));
       }
     _ => (/* TODO Implement support for other literal types */)
   }

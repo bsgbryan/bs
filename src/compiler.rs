@@ -1,4 +1,7 @@
-use std::error::Error;
+use std::{
+	error::Error,
+	slice::Iter,
+};
 
 use crate::{
   chunk::Chunk,
@@ -8,10 +11,12 @@ use crate::{
     Keyword,
     Operator,
     Token,
-  }
+  },
+  tokens::Tokens
 };
 
 mod arithmetic;
+mod keyword;
 mod negate;
 mod value;
 
@@ -31,84 +36,140 @@ pub fn execute(source: &str) -> Result<Chunk, Box<dyn Error>> {
 
   loop {
     if let Some(t) = iter.next() {
-    	let (line, column) = tokens.meta(item);
+     	let (line, column) = tokens.meta(item);
 
-      match t {
-        Token::Literal(l) => {
-          item += 1;
-
-        	let _ = value(&l, &mut chunk);
-        },
-        Token::Keyword(k) => {
-          item += 1;
-
-          use crate::op_code::ControlFlow::Return;
-
-          match k {
-            Keyword::Return => chunk.append(&OpCode::ControlFlow(Return)),
-            _ => ()
-          }
-        }
-        Token::Operator(o) => {
-	        item += 1;
-
-          match o {
-            Operator::Add => {
-              if let Some(v) = iter.next() {
-	              item += 1;
-
-                use crate::op_code::Arithmetic::Add;
-
-                arithmetic(&OpCode::Arithmetic(Add), &v, &mut chunk, &mut iter, *line, *column);
-              }
-            }
-            Operator::Divide => {
-              if let Some(v) = iter.next() {
-	              item += 1;
-
-                use crate::op_code::Arithmetic::Divide;
-
-                arithmetic(&OpCode::Arithmetic(Divide), &v, &mut chunk, &mut iter, *line, *column);
-              }
-            }
-            Operator::Multiply => {
-              if let Some(v) = iter.next() {
-              	item += 1;
-
-                use crate::op_code::Arithmetic::Multiply;
-
-                arithmetic(&OpCode::Arithmetic(Multiply), &v, &mut chunk, &mut iter, *line, *column);
-              }
-            }
-            Operator::Negate => {
-              if let Some(v) = iter.next() {
-	              item += 1;
-
-                let _ = negate(v, &mut chunk, *line, *column);
-
-                let code_count = chunk.codes.iter().count();
-
-                if code_count >= 3 {
-                  use crate::op_code::Arithmetic::Add;
-
-                  match chunk.codes[code_count - 3] {
-                    OpCode::Literal(_) => chunk.append(&OpCode::Arithmetic(Add)),
-                    _ => ()
-                  }
-                }
-              }
-              else { /* TODO Implement error reporting here */ }
-            }
-            _ => ()
-          }
-        }
-        _ => ()
-      }
+    	item += advance(t, &mut chunk, &mut iter, &tokens, *line, *column);
     }
     else { break; }
   }
 
   Ok(chunk)
+}
+
+fn advance(
+	token:	&		 Token,
+	chunk:	&mut Chunk,
+	iter: 	&mut Iter<Token>,
+	tokens: & 	 Tokens,
+	line:		 		 u64,
+	column: 		 u64,
+) -> u64 {
+	let mut processed = 0;
+
+  match token {
+    Token::Literal(l) => {
+      value(&l, chunk);
+
+      if let Some(p) = tokens.peek(column + 1) {
+	     	match p {
+		      Token::Operator(_) => {
+						if let Some(t) = iter.next() {
+							processed += 1;
+							processed += advance(t, chunk, iter, tokens, line, column + processed);
+						}
+					}
+					_ => ()
+	      }
+      }
+    },
+    Token::Keyword(k) => {
+      use crate::op_code::ControlFlow::Return;
+
+      match k {
+        Keyword::Return => chunk.append(OpCode::ControlFlow(Return)),
+        _ => ()
+      }
+    }
+    Token::Operator(o) => {
+	    match o {
+        Operator::Add => {
+          if let Some(v) = iter.next() {
+        		processed += 1;
+
+            use crate::op_code::Arithmetic::Add;
+
+            arithmetic(OpCode::Arithmetic(Add), &v, chunk, iter, line, column + processed);
+          }
+        }
+        Operator::Divide => {
+          if let Some(v) = iter.next() {
+	          processed += 1;
+
+            use crate::op_code::Arithmetic::Divide;
+
+            arithmetic(OpCode::Arithmetic(Divide), &v, chunk, iter, line, column + processed);
+          }
+        }
+        Operator::Multiply => {
+          if let Some(v) = iter.next() {
+           	processed += 1;
+
+            use crate::op_code::Arithmetic::Multiply;
+
+            arithmetic(OpCode::Arithmetic(Multiply), &v, chunk, iter, line, column + processed);
+          }
+        }
+        Operator::Negate => {
+          if let Some(v) = iter.next() {
+	          processed += 1;
+
+            let _ = negate(v, chunk, line, column + processed);
+
+            let code_count = chunk.codes.iter().count();
+
+            if code_count >= 3 {
+              use crate::op_code::Arithmetic::Add;
+
+              match chunk.codes[code_count - 3] {
+                OpCode::Literal(_) => chunk.append(OpCode::Arithmetic(Add)),
+                _ => ()
+              }
+            }
+          }
+          else { /* TODO Implement error reporting here */ }
+        }
+        _ => ()
+      }
+    }
+    Token::Util(u) => {
+     	use crate::token::Util::Print;
+
+      match u {
+       	Print => {
+					loop {
+	        	if let Some(t) = iter.next() {
+							use crate::token::Literal::Number;
+
+							match t {
+								Token::Literal(l) => {
+									match l {
+										Number(_) => {
+						       		processed += 1;
+						          processed += advance(t, chunk, iter, tokens, line, column + processed);
+										}
+										_ => { break }
+									}
+								}
+								Token::Operator(_) => {
+									processed += 1;
+				          processed += advance(t, chunk, iter, tokens, line, column + processed);
+								}
+								_ => { break }
+							}
+						}
+						else { break }
+					}
+
+					use crate::op_code::Util::Print;
+
+					chunk.append(OpCode::Util(Print));
+        }
+      }
+    }
+    _ => ()
+  }
+
+  return processed;
 }
 
 #[cfg(test)]

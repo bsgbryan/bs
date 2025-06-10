@@ -78,7 +78,61 @@ fn run(chunk: &Chunk) {
 
   for c in chunk.codes.iter() {
     match c {
-      OpCode::Literal(l) => {
+	    OpCode::Arithmetic(a) => {
+	     	#[cfg(feature = "trace")]
+	     	println!("🤖::{a}");
+
+	      match a {
+	        Negate => {
+	          match stack.pop() {
+	            Some(Value::Bool(b))   => eprintln!("{b} is not a valid number; cannot Negate"),
+	            Some(Value::Number(n)) => stack.push(Value::Number(-n)),
+	            Some(Value::String(s)) => eprintln!("{s} is not a valid number; cannot Negate"),
+
+	            None => eprintln!("Stack empty; cannot Negate")
+	          }
+	        }
+	        Add => {
+	          if let Some(Value::Number(rhs)) = stack.pop() &&
+	             let Some(Value::Number(lhs)) = stack.pop()
+	          { stack.push(Value::Number(lhs + rhs)) }
+	          else {
+	            eprintln!("Stack values are valid numbers; cannot Add")
+	          }
+	        }
+	        Divide => {
+	          if let Some(Value::Number(rhs)) = stack.pop() &&
+	             let Some(Value::Number(lhs)) = stack.pop()
+	          { stack.push(Value::Number(lhs / rhs)) }
+	          else {
+	            eprintln!("Stack values are valid numbers; cannot Divide")
+	          }
+	        }
+	        Multiply => {
+	          if let Some(Value::Number(rhs)) = stack.pop() &&
+	             let Some(Value::Number(lhs)) = stack.pop()
+	          { stack.push(Value::Number(lhs * rhs)) }
+	          else {
+	            eprintln!("Stack values are valid numbers; cannot Multiply")
+	          }
+	        }
+	        Subtract => {
+	          if let Some(Value::Number(rhs)) = stack.pop() &&
+	             let Some(Value::Number(lhs)) = stack.pop()
+	          { stack.push(Value::Number(lhs - rhs)) }
+	          else {
+	            eprintln!("Stack values are valid numbers; cannot Subtract")
+	          }
+	        }
+	      }
+	    }
+			OpCode::ControlFlow(c) => {
+	      #[cfg(feature = "trace")]
+	     	println!("🤖::{c}");
+
+        match c { Return => { stack.pop(); } }
+      }
+    	OpCode::Literal(l) => {
       	#[cfg(feature = "trace")]
       	println!("🤖::literal({l})");
 
@@ -88,59 +142,15 @@ fn run(chunk: &Chunk) {
           Value::String(s) => stack.push(Value::String(s.clone())),
         }
       }
-      OpCode::ControlFlow(c) => {
-	      #[cfg(feature = "trace")]
-	     	println!("🤖::{c}");
+      OpCode::Util(u) => {
+      	use crate::op_code::Util::Print;
 
-        match c { Return => { stack.pop(); } }
-      }
-      OpCode::Arithmetic(a) => {
-	     	#[cfg(feature = "trace")]
-	     	println!("🤖::{a}");
-
-        match a {
-          Negate => {
-            match stack.pop() {
-              Some(Value::Bool(b))   => eprintln!("{b} is not a valid number; cannot Negate"),
-              Some(Value::Number(n)) => stack.push(Value::Number(-n)),
-              Some(Value::String(s)) => eprintln!("{s} is not a valid number; cannot Negate"),
-
-              None => eprintln!("Stack empty; cannot Negate")
-            }
-          }
-          Add => {
-            if let Some(Value::Number(rhs)) = stack.pop() &&
-               let Some(Value::Number(lhs)) = stack.pop()
-            { stack.push(Value::Number(lhs + rhs)) }
-            else {
-              eprintln!("Stack values are valid numbers; cannot Add")
-            }
-          }
-          Divide => {
-            if let Some(Value::Number(rhs)) = stack.pop() &&
-               let Some(Value::Number(lhs)) = stack.pop()
-            { stack.push(Value::Number(lhs / rhs)) }
-            else {
-              eprintln!("Stack values are valid numbers; cannot Divide")
-            }
-          }
-          Multiply => {
-            if let Some(Value::Number(rhs)) = stack.pop() &&
-               let Some(Value::Number(lhs)) = stack.pop()
-            { stack.push(Value::Number(lhs * rhs)) }
-            else {
-              eprintln!("Stack values are valid numbers; cannot Multiply")
-            }
-          }
-          Subtract => {
-            if let Some(Value::Number(rhs)) = stack.pop() &&
-               let Some(Value::Number(lhs)) = stack.pop()
-            { stack.push(Value::Number(lhs - rhs)) }
-            else {
-              eprintln!("Stack values are valid numbers; cannot Subtract")
-            }
-          }
-        }
+      	match u {
+       		Print => {
+         		if let Some(value) = stack.pop() { println!("{value}"); 			 }
+            else 														 { panic!("Nothing to print"); }
+	        }
+       	}
       }
     }
   }

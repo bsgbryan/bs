@@ -22,7 +22,7 @@ pub fn expression(
 
   use crate::op_code::Arithmetic::Negate;
 
-  chunk.append(&OpCode::Arithmetic(Negate));
+  chunk.append(OpCode::Arithmetic(Negate));
 }
 
 #[cfg(test)]

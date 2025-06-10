@@ -41,14 +41,14 @@ pub fn for_token(token: &Token) -> u8 {
     }
     Token::Keyword(k) => {
       use crate::token::Keyword::{
-        And,
+        // And,
         Const,
         Else,
         False,
         Fun,
         If,
         Loop,
-        Or,
+        // Or,
         Print,
         Return,
         True,
@@ -57,14 +57,14 @@ pub fn for_token(token: &Token) -> u8 {
       };
 
       match k {
-        And    => NONE,
+        // And    => NONE,
         Const  => NONE,
         Else   => NONE,
         False  => NONE,
         Fun    => NONE,
         If     => NONE,
         Loop   => NONE,
-        Or     => NONE,
+        // Or     => NONE,
         Print  => NONE,
         Return => NONE,
         True   => NONE,
@@ -127,6 +127,15 @@ pub fn for_token(token: &Token) -> u8 {
         OpenBracet  => NONE,
         OpenParen   => NONE,
         SELF        => NONE,
+      }
+    }
+    Token::Util(u) => {
+      use crate::token::Util::{
+      	Print,
+      };
+
+      match u {
+        Print => NONE,
       }
     }
   }
