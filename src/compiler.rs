@@ -166,14 +166,37 @@ mod validate {
       use crate::{
         compiler::execute as compile,
         op_code::OpCode,
+        value::Value::Number,
       };
 
       #[test]
       fn codes() {
-        use crate::value::Value::Number;
-
         match compile("4") {
           Ok(output) => { assert_eq!(output.codes[0], OpCode::Literal(Number(4.0))); }
+          Err(e)     => { panic!("Source compilation failed: {e:#?}"); }
+        }
+      }
+    }
+
+    mod bōōl {
+      use crate::{
+        compiler::execute as compile,
+        op_code::OpCode,
+        value::Value::Bool,
+      };
+
+      #[test]
+      fn true_value() {
+        match compile("true") {
+          Ok(output) => { assert_eq!(output.codes[0], OpCode::Literal(Bool(true))); }
+          Err(e)     => { panic!("Source compilation failed: {e:#?}"); }
+        }
+      }
+
+      #[test]
+      fn false_value() {
+        match compile("false") {
+          Ok(output) => { assert_eq!(output.codes[0], OpCode::Literal(Bool(false))); }
           Err(e)     => { panic!("Source compilation failed: {e:#?}"); }
         }
       }
@@ -184,13 +207,14 @@ mod validate {
     mod rēturn {
       use crate::{
         compiler::execute as compile,
-        op_code::OpCode,
+        op_code::{
+          ControlFlow::Return,
+          OpCode,
+        },
       };
 
       #[test]
       fn codes() {
-        use crate::op_code::ControlFlow::Return;
-
         match compile("return") {
           Ok(output) => { assert_eq!(output.codes[0], OpCode::ControlFlow(Return)); }
           Err(e)     => { panic!("Source compilation failed: {e:#?}"); }
@@ -203,20 +227,19 @@ mod validate {
     mod add {
       use crate::{
         compiler::execute as compile,
-        op_code::OpCode,
+        op_code::{
+          Arithmetic::Add,
+          OpCode,
+        },
+        value::Value::Number,
       };
 
       #[test]
       fn codes() {
         match compile("4+5") {
           Ok(output) => {
-            use crate::value::Value::Number;
-
             assert_eq!(output.codes[0], OpCode::Literal(Number(4.0)));
             assert_eq!(output.codes[1], OpCode::Literal(Number(5.0)));
-
-            use crate::op_code::Arithmetic::Add;
-
             assert_eq!(output.codes[2], OpCode::Arithmetic(Add));
           }
           Err(e) => panic!("Source compilation failed: {e:#?}")
@@ -227,20 +250,19 @@ mod validate {
     mod divide {
       use crate::{
         compiler::execute as compile,
-        op_code::OpCode,
+        op_code::{
+          Arithmetic::Divide,
+          OpCode,
+        },
+        value::Value::Number
       };
 
       #[test]
       fn codes() {
         match compile("4/5") {
           Ok(output) => {
-            use crate::value::Value::Number;
-
             assert_eq!(output.codes[0], OpCode::Literal(Number(4.0)));
             assert_eq!(output.codes[1], OpCode::Literal(Number(5.0)));
-
-            use crate::op_code::Arithmetic::Divide;
-
             assert_eq!(output.codes[2], OpCode::Arithmetic(Divide));
           }
           Err(e) => panic!("Source compilation failed: {e:#?}")
@@ -248,23 +270,44 @@ mod validate {
       }
     }
 
+    mod invert {
+	    use crate::{
+	      compiler::execute as compile,
+	      op_code::{
+          Command::Invert,
+          OpCode,
+        },
+        value::Value::Bool
+	    };
+
+    	#[test]
+     	fn codes() {
+	     	match compile("!false") {
+	        Ok(output) => {
+						assert_eq!(output.codes[0], OpCode::Literal(Bool(false)));
+						assert_eq!(output.codes[1], OpCode::Command(Invert));
+					}
+	        Err(e) => { panic!("Source compilation failed: {e:#?}"); }
+	      }
+      }
+    }
+
     mod multiply {
       use crate::{
         compiler::execute as compile,
-        op_code::OpCode,
+        op_code::{
+          Arithmetic::Multiply,
+          OpCode,
+        },
+        value::Value::Number,
       };
 
       #[test]
       fn codes() {
         match compile("4*5") {
           Ok(output) => {
-            use crate::value::Value::Number;
-
             assert_eq!(output.codes[0], OpCode::Literal(Number(4.0)));
             assert_eq!(output.codes[1], OpCode::Literal(Number(5.0)));
-
-            use crate::op_code::Arithmetic::Multiply;
-
             assert_eq!(output.codes[2], OpCode::Arithmetic(Multiply));
           }
           Err(e) => panic!("Source compilation failed: {e:#?}")
@@ -273,21 +316,23 @@ mod validate {
     }
 
     mod negate {
-      use crate::{
+	    use crate::{
         compiler::execute as compile,
-        op_code::OpCode,
+        op_code::{
+					Arithmetic::{
+						Add,
+						Negate,
+					},
+					OpCode,
+				},
+				value::Value::Number,
       };
 
       #[test]
       fn codes() {
         match compile("-5") {
           Ok(output) => {
-            use crate::value::Value::Number;
-
             assert_eq!(output.codes[0], OpCode::Literal(Number(5.0)));
-
-            use crate::op_code::Arithmetic::Negate;
-
             assert_eq!(output.codes[1], OpCode::Arithmetic(Negate));
           }
           Err(e) => panic!("Source compilation failed: {e:#?}")
@@ -298,16 +343,8 @@ mod validate {
       fn simple_subtract() {
         match compile("4-5") {
           Ok(output) => {
-            use crate::value::Value::Number;
-
             assert_eq!(output.codes[0], OpCode::Literal(Number(4.0)));
             assert_eq!(output.codes[1], OpCode::Literal(Number(5.0)));
-
-            use crate::op_code::Arithmetic::{
-              Add,
-              Negate,
-            };
-
             assert_eq!(output.codes[2], OpCode::Arithmetic(Negate));
             assert_eq!(output.codes[3], OpCode::Arithmetic(Add));
           }
@@ -317,18 +354,6 @@ mod validate {
 
       #[test]
       fn compound_subtract() {
-				use crate::{
-	        compiler::execute as compile,
-	        op_code::{
-						Arithmetic::{
-							Add,
-							Negate,
-						},
-						OpCode,
-					},
-					value::Value::Number,
-	      };
-
         match compile("2+3-5") {
           Ok(output) => {
             assert_eq!(output.codes[0], OpCode::Literal(Number(2.0)));
@@ -344,19 +369,7 @@ mod validate {
 
       #[test]
       fn mid_expression() {
-				use crate::{
-	        compiler::execute as compile,
-	        op_code::{
-						Arithmetic::{
-							Add,
-							Negate,
-						},
-						OpCode,
-					},
-					value::Value::Number,
-	      };
-
-        match compile("2-5+3") {
+				match compile("2-5+3") {
           Ok(output) => {
             assert_eq!(output.codes[0], OpCode::Literal(Number(2.0)));
 						assert_eq!(output.codes[1], OpCode::Literal(Number(5.0)));
