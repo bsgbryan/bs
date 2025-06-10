@@ -136,26 +136,15 @@ fn advance(
 
       match u {
        	Print => {
-					loop {
-	        	if let Some(t) = iter.next() {
-							use crate::token::Literal::Number;
+	        use crate::precedence;
 
-							match t {
-								Token::Literal(l) => {
-									match l {
-										Number(_) => {
-						       		processed += 1;
-						          processed += advance(t, chunk, iter, tokens, line, column + processed);
-										}
-										_ => { break }
-									}
-								}
-								Token::Operator(_) => {
-									processed += 1;
-				          processed += advance(t, chunk, iter, tokens, line, column + processed);
-								}
-								_ => { break }
-							}
+					loop {
+						if let Some(p) = tokens.peek(column + 1) 									 &&
+						 	 precedence::for_token(p) < precedence::for_token(token) &&
+							 let Some(t) = iter.next()
+						{
+							processed += 1;
+		          processed += advance(t, chunk, iter, tokens, line, column + 1);
 						}
 						else { break }
 					}

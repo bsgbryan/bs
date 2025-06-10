@@ -135,7 +135,7 @@ pub fn for_token(token: &Token) -> u8 {
       };
 
       match u {
-        Print => NONE,
+        Print => CALL,
       }
     }
   }
