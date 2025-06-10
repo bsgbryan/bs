@@ -106,8 +106,9 @@ fn advance(
             if code_count >= 3 {
               use crate::op_code::Arithmetic::Add;
 
-              match chunk.codes[code_count - 3] {
-                OpCode::Literal(_) => chunk.append(OpCode::Arithmetic(Add)),
+              match &chunk.codes[code_count - 3] {
+                OpCode::Literal(_) 		=> chunk.append(OpCode::Arithmetic(Add)),
+                OpCode::Arithmetic(_) => chunk.append(OpCode::Arithmetic(Add)),
                 _ => ()
               }
             }
