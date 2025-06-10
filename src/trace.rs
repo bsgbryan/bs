@@ -21,6 +21,7 @@ pub fn instruction(op_code: &OpCode) {
       Negate,
       Subtract,
     },
+    Command::Invert,
     ControlFlow::Return,
     Util::Print,
   };
@@ -34,6 +35,9 @@ pub fn instruction(op_code: &OpCode) {
         Multiply => no_value("OP_MULTIPLY"),
         Subtract => no_value("OP_SUBTRACT"),
       }
+    }
+    OpCode::Command(c) => {
+      match c { Invert => no_value("OP_INVERT") }
     }
     OpCode::ControlFlow(c) => {
       match c { Return => no_value("OP_RETURN") }

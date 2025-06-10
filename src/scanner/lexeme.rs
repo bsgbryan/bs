@@ -2,7 +2,10 @@ use std::slice::Iter;
 
 use crate::token::{
   Keyword,
-  Literal,
+  Literal::{
+	  Bool,
+	  self,
+  },
   Operator,
   Scope,
   Error,
@@ -24,19 +27,18 @@ pub fn process<'a>(
   let mut out = Vec::with_capacity(1);
 
   match lexeme {
-    // "and"    => { out.push((column, Token::Keyword(Keyword::And))); },
     "const"  => { out.push((column, Token::Keyword(Keyword::Const))); },
     "else"   => { out.push((column, Token::Keyword(Keyword::Else))); },
-    "false"  => { out.push((column, Token::Keyword(Keyword::False))); },
     "fun"    => { out.push((column, Token::Keyword(Keyword::Fun))); },
     "if"     => { out.push((column, Token::Keyword(Keyword::If))); },
     "loop"   => { out.push((column, Token::Keyword(Keyword::Loop))); },
-    // "or"     => { out.push((column, Token::Keyword(Keyword::Or))); },
     "print"  => { out.push((column, Token::Util(Util::Print))); },
     "return" => { out.push((column, Token::Keyword(Keyword::Return))); },
-    "true"   => { out.push((column, Token::Keyword(Keyword::True))); },
     "var"    => { out.push((column, Token::Keyword(Keyword::Var))); },
     "while"  => { out.push((column, Token::Keyword(Keyword::While))); },
+
+    "false" => { out.push((column, Token::Literal(Bool(false)))); },
+    "true"  => { out.push((column, Token::Literal(Bool(true)))); },
 
     "+" => { out.push((column, Token::Operator(Operator::Add))); },
     "/" => { out.push((column, Token::Operator(Operator::Divide))); },

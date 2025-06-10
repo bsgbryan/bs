@@ -29,6 +29,7 @@ impl Display for Chunk {
 		for c in self.codes.iter() {
 			use crate::op_code::OpCode::{
 				Arithmetic,
+				Command,
 				ControlFlow,
 				Literal,
 				Util,
@@ -50,6 +51,13 @@ impl Display for Chunk {
 						Multiply => { let _ = writeln!(f, "\tMultiply"); }
 						Negate   =>	{ let _ = writeln!(f, "\tNegate"); 	 }
 						Subtract => { let _ = writeln!(f, "\tSubstract"); }
+					}
+				}
+				Command(c) => {
+					use crate::op_code::Command::Invert;
+
+					match c {
+						Invert => { let _ = writeln!(f, "\tInvert"); }
 					}
 				}
 				ControlFlow(c) => {

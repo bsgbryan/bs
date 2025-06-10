@@ -70,6 +70,7 @@ fn run(chunk: &Chunk) {
       Negate,
       Subtract,
     },
+    Command::Invert,
     ControlFlow::Return,
     OpCode,
   };
@@ -126,6 +127,23 @@ fn run(chunk: &Chunk) {
 	        }
 	      }
 	    }
+			OpCode::Command(c) => {
+	      #[cfg(feature = "trace")]
+	     	println!("🤖::{c}");
+
+        match c {
+        	Invert => {
+         		use crate::value::Value::Bool;
+
+         		if let Some(value) = stack.pop() {
+	          	match value {
+								Bool(b) => { stack.push(Value::Bool(!b)); }
+								_ => { panic!("Cannot invert {value}") }
+	           	}
+           	}
+         	}
+        }
+      }
 			OpCode::ControlFlow(c) => {
 	      #[cfg(feature = "trace")]
 	     	println!("🤖::{c}");

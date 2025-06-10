@@ -93,27 +93,15 @@ pub fn process<'a>(
           return out
         }
         else {
-          use crate::token::{
-            Keyword::{
-              False,
-              True,
-            },
-            Operator::Invert,
-          };
+          use crate::token::Operator::Invert;
 
           let mut tokens = super::process(n, iter, *c as u64);
+          let mut out 	 = Vec::with_capacity(2);
 
-          if tokens[0].1 == Token::Keyword(False) ||
-             tokens[0].1 == Token::Keyword(True)
-          {
-            let mut out = Vec::with_capacity(2);
+          out.append(&mut tokens);
+          out.push((column, Token::Operator(Invert)));
 
-            out.append(&mut tokens);
-            out.push((column, Token::Operator(Invert)));
-
-            return out
-          }
-          else { return Vec::with_capacity(0) }
+          return out
         }
       }
       else { return Vec::with_capacity(0) }
@@ -218,8 +206,8 @@ mod validate {
   #[test]
   fn invert() {
     use crate::token::{
-      Operator::Invert,
-      Keyword::False,
+	   	Literal::Bool,
+	    Operator::Invert,
     };
 
     let     lexemes = vec![(0, "!"), (1, "false")];
@@ -235,7 +223,7 @@ mod validate {
       let second = tokens.next();
 
       if let Some(t) = first {
-        assert_eq!(*t, (1, Token::Keyword(False)));
+        assert_eq!(*t, (1, Token::Literal(Bool(false))));
       }
       else { panic!("Expected a Token, got None"); }
 

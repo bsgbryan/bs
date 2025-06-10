@@ -1,16 +1,26 @@
 use crate::{
   chunk::Chunk,
   op_code::OpCode,
-  token::Literal,
-  value::Value::Number,
+  token::Literal::{
+  	Bool,
+  	Number,
+	  self,
+  },
+  value::Value::{
+	  Bool 	 as BoolValue,
+	  Number as NumberValue,
+  },
 };
 
 pub fn expression(token: &Literal, chunk: &mut Chunk) {
   match token {
-    Literal::Number(n) =>
+    Number(n) => {
       if let Ok(value) = n.parse::<f64>() {
-        chunk.append(OpCode::Literal(Number(value)));
+        chunk.append(OpCode::Literal(NumberValue(value)));
       }
+      else { panic!("{n} is not a valid number") }
+    }
+    Bool(b) => chunk.append(OpCode::Literal(BoolValue(*b))),
     _ => (/* TODO Implement support for other literal types */)
   }
 }

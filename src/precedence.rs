@@ -41,39 +41,32 @@ pub fn for_token(token: &Token) -> u8 {
     }
     Token::Keyword(k) => {
       use crate::token::Keyword::{
-        // And,
         Const,
         Else,
-        False,
         Fun,
         If,
         Loop,
-        // Or,
         Print,
         Return,
-        True,
         Var,
         While,
       };
 
       match k {
-        // And    => NONE,
         Const  => NONE,
         Else   => NONE,
-        False  => NONE,
         Fun    => NONE,
         If     => NONE,
         Loop   => NONE,
-        // Or     => NONE,
         Print  => NONE,
         Return => NONE,
-        True   => NONE,
         Var    => NONE,
         While  => NONE,
       }
     }
     Token::Literal(l) => {
       use crate::token::Literal::{
+	      Bool,
         Identifier,
         InterpolatedString,
         Number,
@@ -81,6 +74,7 @@ pub fn for_token(token: &Token) -> u8 {
       };
 
       match l {
+	     	Bool(_)								=> NONE,
         Identifier(_)         => NONE,
         InterpolatedString(_) => NONE,
         Number(_)             => NONE,

@@ -115,6 +115,17 @@ fn advance(
           }
           else { /* TODO Implement error reporting here */ }
         }
+        Operator::Invert => {
+	        if let Some(t) = iter.next() {
+						processed = 1;
+	       		processed += advance(t, chunk, iter, tokens, line, column + 1);
+	        }
+					else { panic!("Nothing to invert") }
+
+					use crate::op_code::Command::Invert;
+
+					chunk.append(OpCode::Command(Invert));
+        }
         _ => ()
       }
     }
