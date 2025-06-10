@@ -153,6 +153,47 @@ fn advance(
         }
       }
     }
+    Token::Equality(e) => {
+      use crate::precedence;
+      
+      loop {
+        if let Some(p) = tokens.peek(column + 1) 									  &&
+        precedence::for_token(p) < precedence::for_token(token) &&
+        let Some(t) = iter.next()
+        {
+          processed += 1;
+          processed += advance(t, chunk, iter, tokens, line, column + 1);
+        }
+        else { break }
+      }
+
+      match e {
+        crate::token::Equality::Equal => {
+          use crate::op_code::Equality::Equal;
+          chunk.append(OpCode::Equality(Equal));
+        }
+        crate::token::Equality::Greater => {
+          use crate::op_code::Equality::Greater;
+          chunk.append(OpCode::Equality(Greater));
+        }
+        crate::token::Equality::GreaterOrEqual => {
+          use crate::op_code::Equality::GreaterOrEqual;
+          chunk.append(OpCode::Equality(GreaterOrEqual));
+        }
+        crate::token::Equality::Less => {
+          use crate::op_code::Equality::Less;
+          chunk.append(OpCode::Equality(Less));
+        }
+        crate::token::Equality::LessOrEqual => {
+          use crate::op_code::Equality::LessOrEqual;
+          chunk.append(OpCode::Equality(LessOrEqual));
+        }
+        crate::token::Equality::NotEqual => {
+          use crate::op_code::Equality::NotEqual;
+          chunk.append(OpCode::Equality(NotEqual));
+        }
+      }
+    }
     _ => ()
   }
 

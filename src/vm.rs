@@ -150,6 +150,43 @@ fn run(chunk: &Chunk) {
 
         match c { Return => { stack.pop(); } }
       }
+      OpCode::Equality(e) => {
+        use crate::op_code::Equality::{
+          Equal,
+          Greater,
+          GreaterOrEqual,
+          Less,
+          LessOrEqual,
+          NotEqual,
+        };
+
+        #[cfg(feature = "trace")] {
+          match e {
+            Equal          => println!("🤖::=="),
+            Greater        => println!("🤖::>"),
+            GreaterOrEqual => println!("🤖::>="),
+            Less           => println!("🤖::<"),
+            LessOrEqual    => println!("🤖::>="),
+            NotEqual       => println!("🤖::!="),
+          }
+        }
+
+        if let Some(Value::Number(rhs)) = stack.pop() &&
+           let Some(Value::Number(lhs)) = stack.pop()
+        {
+          let result = match e {
+            Equal          => Value::Bool(lhs == rhs),
+            Greater        => Value::Bool(lhs >  rhs),
+            GreaterOrEqual => Value::Bool(lhs >= rhs),
+            Less           => Value::Bool(lhs <  rhs),
+            LessOrEqual    => Value::Bool(lhs <= rhs),
+            NotEqual       => Value::Bool(lhs != rhs),
+          };
+
+          stack.push(result);
+        }
+        else { panic!("Could not execute equality check, at least one operand missing") }
+      }
     	OpCode::Literal(l) => {
       	#[cfg(feature = "trace")]
       	println!("🤖::literal({l})");

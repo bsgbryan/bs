@@ -31,6 +31,7 @@ impl Display for Chunk {
 				Arithmetic,
 				Command,
 				ControlFlow,
+        Equality,
 				Literal,
 				Util,
 			};
@@ -67,6 +68,25 @@ impl Display for Chunk {
 						Return => { let _ = writeln!(f, "\tReturn"); }
 					}
 				}
+        Equality(e) => {
+          use crate::op_code::Equality::{
+            Equal,
+            Greater,
+            GreaterOrEqual,
+            Less,
+            LessOrEqual,
+            NotEqual,
+          };
+
+          match e {
+            Equal          => { let _ = writeln!(f, "\tEqual"         ); }
+            Greater        => { let _ = writeln!(f, "\tGreater"       ); }
+            GreaterOrEqual => { let _ = writeln!(f, "\tGreaterOrEqual"); }
+            Less           => { let _ = writeln!(f, "\tLess"          ); }
+            LessOrEqual    => { let _ = writeln!(f, "\tLessOrEqual"   ); }
+            NotEqual       => { let _ = writeln!(f, "\tNotEqual"      ); }
+          }
+        }
 				Literal(l) => {
 					use crate::value::Value::{
 						Bool,

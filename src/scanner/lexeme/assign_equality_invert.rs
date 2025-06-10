@@ -13,11 +13,15 @@ pub fn process<'a>(
         if *n == "=" {
           use crate::token::Equality::Equal;
 
-          let mut out = Vec::with_capacity(1);
-
-          out.push((column, Token::Equality(Equal)));
-
-          return out
+          if let Some((_, l)) = iter.next() {
+            let mut out = Vec::with_capacity(2);
+  
+            out.append(&mut super::process(l, iter, *c as u64));
+            out.push((column, Token::Equality(Equal)));
+  
+            return out
+          }
+          else { Vec::with_capacity(0) }
         }
         // Assignment
         else {
@@ -38,21 +42,28 @@ pub fn process<'a>(
         if *n == "=" {
           use crate::token::Equality::GreaterOrEqual;
 
-          let mut out = Vec::with_capacity(1);
-
-          out.push((column, Token::Equality(GreaterOrEqual)));
-
-          return out
+          if let Some((_, l)) = iter.next() {
+            let mut out = Vec::with_capacity(2);
+  
+            out.append(&mut super::process(l, iter, *c as u64));
+            out.push((column, Token::Equality(GreaterOrEqual)));
+  
+            return out
+          }
+          else { Vec::with_capacity(0) }
         }
         else {
           use crate::token::Equality::Greater;
 
-          let mut out = Vec::with_capacity(2);
-
-          out.push((column, Token::Equality(Greater)));
-          out.append(&mut super::process(n, iter, *c as u64));
-
-          return out
+          if let Some((c, l)) = iter.next() {
+            let mut out = Vec::with_capacity(2);
+  
+            out.append(&mut super::process(l, iter, *c as u64));
+            out.push((column, Token::Equality(Greater)));
+  
+            return out
+          }
+          else { Vec::with_capacity(0) }
         }
       }
       else { return Vec::with_capacity(0) }
@@ -62,21 +73,28 @@ pub fn process<'a>(
         if *n == "=" {
           use crate::token::Equality::LessOrEqual;
 
-          let mut out = Vec::with_capacity(1);
-
-          out.push((column, Token::Equality(LessOrEqual)));
-
-          return out
+          if let Some((_, l)) = iter.next() {
+            let mut out = Vec::with_capacity(2);
+  
+            out.append(&mut super::process(l, iter, *c as u64));
+            out.push((column, Token::Equality(LessOrEqual)));
+  
+            return out
+          }
+          else { Vec::with_capacity(0) }
         }
         else {
           use crate::token::Equality::Less;
 
-          let mut out = Vec::with_capacity(2);
-
-          out.push((column, Token::Equality(Less)));
-          out.append(&mut super::process(n, iter, *c as u64));
-
-          return out
+          if let Some((c, l)) = iter.next() {
+            let mut out = Vec::with_capacity(2);
+  
+            out.append(&mut super::process(l, iter, *c as u64));
+            out.push((column, Token::Equality(Less)));
+  
+            return out
+          }
+          else { Vec::with_capacity(0) }
         }
       }
       else { return Vec::with_capacity(0) }
@@ -86,11 +104,15 @@ pub fn process<'a>(
         if *n == "=" {
           use crate::token::Equality::NotEqual;
 
-          let mut out = Vec::with_capacity(1);
+          if let Some((_, l)) = iter.next() {
+            let mut out = Vec::with_capacity(2);
 
-          out.push((column, Token::Equality(NotEqual)));
+            out.append(&mut super::process(l, iter, *c as u64));
+            out.push((column, Token::Equality(NotEqual)));
 
-          return out
+            return out
+          }
+          else { Vec::with_capacity(0) }
         }
         else {
           use crate::token::Operator::Invert;

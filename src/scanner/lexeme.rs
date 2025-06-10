@@ -44,7 +44,6 @@ pub fn process<'a>(
     "/" => { out.push((column, Token::Operator(Operator::Divide))); },
     "*" => { out.push((column, Token::Operator(Operator::Multiply))); },
     "-" => { out.push((column, Token::Operator(Operator::Negate))); },
-    "!" => { out.push((column, Token::Operator(Operator::Invert))); },
 
     ":"    => { out.push((column, Token::Scope(Scope::Colon))); },
     ","    => { out.push((column, Token::Scope(Scope::Comma))); },

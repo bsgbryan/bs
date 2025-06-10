@@ -42,6 +42,25 @@ pub fn instruction(op_code: &OpCode) {
     OpCode::ControlFlow(c) => {
       match c { Return => no_value("OP_RETURN") }
     }
+    OpCode::Equality(e) => {
+      use crate::op_code::Equality::{
+        Equal,
+        Greater,
+        GreaterOrEqual,
+        Less,
+        LessOrEqual,
+        NotEqual,
+      };
+
+      match e {
+        Equal          => no_value("OP_EQUAL"           ),
+        Greater        => no_value("OP_GREATER"         ),
+        GreaterOrEqual => no_value("OP_GREATER_OR_EQUAL"),
+        Less           => no_value("OP_LESS"            ),
+        LessOrEqual    => no_value("OP_LESS_OR_EQUAL"   ),
+        NotEqual       => no_value("OP_NOT_EQUAL"       ),
+      }
+    }
     OpCode::Literal(l) => { single_value("OP_LITERAL", l) }
     OpCode::Util(u) => {
 	   	match u {
