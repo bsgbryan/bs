@@ -4,23 +4,26 @@ use crate::{
   token::Literal::{
   	Bool,
   	Number,
+    String,
 	  self,
   },
   value::Value::{
 	  Bool 	 as BoolValue,
 	  Number as NumberValue,
+    String as StringValue,
   },
 };
 
 pub fn expression(token: &Literal, chunk: &mut Chunk) {
   match token {
+    Bool(b) => chunk.append(OpCode::Literal(BoolValue(*b))),
     Number(n) => {
       if let Ok(value) = n.parse::<f64>() {
         chunk.append(OpCode::Literal(NumberValue(value)));
       }
       else { panic!("{n} is not a valid number") }
     }
-    Bool(b) => chunk.append(OpCode::Literal(BoolValue(*b))),
+    String(s) => chunk.append(OpCode::Literal(StringValue(s.clone()))),
     _ => (/* TODO Implement support for other literal types */)
   }
 }
